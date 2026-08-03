@@ -10,7 +10,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ReceiptDoc } from "@/components/receipt/ReceiptDoc";
-import { HEAD_DOTS } from "./receiptConfig";
+import { HEAD_DOTS, MASTHEAD } from "./receiptConfig";
 import { estimateReceiptHeight } from "./receiptHeight";
 import type { ReceiptPayload } from "./receiptPayload";
 
@@ -44,33 +44,55 @@ function loadFont(): Promise<ArrayBuffer | undefined> {
 }
 
 /**
+ * Read the masthead artwork once per process and inline it.
+ *
+ * Satori will happily fetch a remote `<img src>`, but that would make every
+ * receipt depend on a network round-trip to our own deployment. A data URI
+ * read off disk keeps rendering self-contained — it's a 12KB 1-bit PNG.
+ */
+let mastheadPromise: Promise<string | undefined> | undefined;
+
+function loadMasthead(): Promise<string | undefined> {
+  mastheadPromise ??= readFile(join(process.cwd(), MASTHEAD.file))
+    .then((buf) => `data:image/png;base64,${buf.toString("base64")}`)
+    .catch(() => {
+      console.warn(`[receipt] masthead missing at ${MASTHEAD.file}`);
+      return undefined;
+    });
+  return mastheadPromise;
+}
+
+/**
  * Render a receipt to a PNG response.
  *
  * Height comes from `estimateReceiptHeight`, which deliberately over-estimates;
  * the Pi crops the trailing white before printing.
  */
 export async function renderReceipt(payload: ReceiptPayload): Promise<ImageResponse> {
-  const fontData = await loadFont();
+  const [fontData, mastheadSrc] = await Promise.all([loadFont(), loadMasthead()]);
 
-  return new ImageResponse(<ReceiptDoc payload={payload} />, {
-    width: HEAD_DOTS,
-    height: estimateReceiptHeight(payload),
-    fonts: fontData
-      ? [
-          {
-            name: "ABCMonumentGrotesk",
-            data: fontData,
-            weight: 300,
-            style: "normal",
-          },
-        ]
-      : undefined,
-    headers: {
-      // The bitmap is derived entirely from the payload, and a receipt is
-      // printed once. Nothing here should ever come from a cache.
-      "Cache-Control": "no-store",
+  return new ImageResponse(
+    <ReceiptDoc payload={payload} mastheadSrc={mastheadSrc} />,
+    {
+      width: HEAD_DOTS,
+      height: estimateReceiptHeight(payload),
+      fonts: fontData
+        ? [
+            {
+              name: "ABCMonumentGrotesk",
+              data: fontData,
+              weight: 300,
+              style: "normal",
+            },
+          ]
+        : undefined,
+      headers: {
+        // The bitmap is derived entirely from the payload, and a receipt is
+        // printed once. Nothing here should ever come from a cache.
+        "Cache-Control": "no-store",
+      },
     },
-  });
+  );
 }
 
 /** Same render, as raw bytes — for forwarding to the Pi. */

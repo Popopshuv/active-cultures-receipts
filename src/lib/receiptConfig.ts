@@ -123,10 +123,27 @@ export const TONE = {
   contrast: 0.9,
 } as const;
 
-/** Masthead copy. */
-export const BRAND = {
-  wordmark: "ACTIVE CULTURES",
-  eyebrow: "RUN CLUB — SALT LAKE CITY",
+/**
+ * The masthead artwork that opens every receipt.
+ *
+ * A pre-rendered 1-bit bitmap rather than type, for the same reason photos are
+ * dithered in the browser: it arrives already pure black and white, so the
+ * Pi's threshold leaves it byte-identical and nothing can soften it.
+ *
+ * `width`/`height` must match the file's real pixel size — satori places it at
+ * exactly these dimensions, and any mismatch resamples it, which would chew up
+ * the halftone detail in the artwork.
+ *
+ * To swap it: run the source art through the same treatment — downscale to
+ * `CONTENT_WIDTH` with Lanczos, then a hard threshold around 128. Thresholding
+ * beats dithering here; the art is already high-contrast, and error diffusion
+ * makes it print too light.
+ */
+export const MASTHEAD = {
+  /** Path under the repo root. Read at render time and inlined as a data URI. */
+  file: "public/receipt/masthead.png",
+  width: CONTENT_WIDTH,
+  height: 417,
 } as const;
 
 /** Closing lines above the ticket stamp. */

@@ -26,7 +26,7 @@
 
 import {
   ATTRIBUTION,
-  BRAND,
+  MASTHEAD,
   CONTENT_WIDTH,
   GAP,
   HEAD_DOTS,
@@ -149,7 +149,17 @@ function Line({
   );
 }
 
-export function ReceiptDoc({ payload }: { payload: ReceiptPayload }) {
+export function ReceiptDoc({
+  payload,
+  mastheadSrc,
+}: {
+  payload: ReceiptPayload;
+  /**
+   * The masthead artwork as a data URI, read from disk by `renderReceipt`.
+   * Optional so a missing asset costs the logo rather than the whole receipt.
+   */
+  mastheadSrc?: string;
+}) {
   const routeSrc = polylineToDataUri(payload.polyline, {
     width: ROUTE.width,
     height: ROUTE.height,
@@ -172,32 +182,19 @@ export function ReceiptDoc({ payload }: { payload: ReceiptPayload }) {
         fontWeight: 300,
       }}
     >
-      {/* Masthead */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: CONTENT_WIDTH,
-          alignItems: "center",
-        }}
-      >
-        <Line
-          size={TYPE.brand}
-          lineHeight={LINE_H.brand}
-          tracking={TRACKING.brand}
-          align="center"
-        >
-          {BRAND.wordmark}
-        </Line>
-        <Line
-          size={TYPE.micro}
-          lineHeight={LINE_H.micro}
-          tracking={TRACKING.micro}
-          align="center"
-        >
-          {BRAND.eyebrow}
-        </Line>
-      </div>
+      {/* Masthead — artwork, not type. Placed at its native pixel size so the
+          halftone survives; see MASTHEAD in receiptConfig. */}
+      {mastheadSrc ? (
+        <Block align="center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mastheadSrc}
+            width={MASTHEAD.width}
+            height={MASTHEAD.height}
+            alt=""
+          />
+        </Block>
+      ) : null}
 
       {/* Title block */}
       <div

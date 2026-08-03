@@ -22,6 +22,7 @@ import {
   CONTENT_WIDTH,
   GAP,
   LINE_H,
+  MASTHEAD,
   ROUTE,
   TYPE,
   TRACKING,
@@ -67,9 +68,8 @@ const RULE_BLOCK = GAP.rule * 2 + 1;
 export function estimateReceiptHeight(payload: ReceiptPayload): number {
   let h = 0;
 
-  // Masthead.
-  h += LINE_H.brand;
-  h += LINE_H.micro;
+  // Masthead artwork.
+  h += MASTHEAD.height;
   h += GAP.section;
 
   // Title block.
