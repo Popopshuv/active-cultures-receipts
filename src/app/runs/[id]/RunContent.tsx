@@ -26,6 +26,20 @@ const LABEL_STYLE = {
   color: "var(--gray-3)",
 };
 
+/** The underlined text button used for every action on this screen. */
+const ACTION_STYLE = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  paddingBottom: "0.3rem",
+  cursor: "pointer",
+  fontSize: "var(--text-sm)",
+  letterSpacing: "0.15em",
+  textTransform: "uppercase" as const,
+  color: "var(--black)",
+  borderBottom: "1px solid var(--black)",
+};
+
 export function RunContent({ activityId }: { activityId: string }) {
   const router = useRouter();
 
@@ -41,6 +55,7 @@ export function RunContent({ activityId }: { activityId: string }) {
   // send precisely what the preview rendered, with no re-derivation.
   const printPayload = useRef<ReceiptPayload | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
 
   // Load the activity.
   useEffect(() => {
@@ -86,11 +101,18 @@ export function RunContent({ activityId }: { activityId: string }) {
 
   const addFiles = useCallback((files: FileList | null) => {
     if (!files) return;
+    // Snapshot the FileList *now*. Clearing the input's value empties the same
+    // FileList object, and a state updater runs later — read it lazily and the
+    // list is already gone by the time React calls back.
+    const picked = Array.from(files);
+    if (picked.length === 0) return;
     setChosen((current) => {
       const room = MAX_RUNNER_PHOTOS - current.length;
-      return room <= 0 ? current : [...current, ...Array.from(files).slice(0, room)];
+      return room <= 0 ? current : [...current, ...picked.slice(0, room)];
     });
   }, []);
+
+  const full = chosen.length >= MAX_RUNNER_PHOTOS;
 
   const chosenKey = useMemo(
     () =>
@@ -285,6 +307,9 @@ export function RunContent({ activityId }: { activityId: string }) {
             </div>
           ) : null}
 
+          {/* Two inputs, not one. `capture` on a single input would force the
+              camera and take the camera roll away entirely — and the camera
+              path is the reliable one, since it always hands back a JPEG. */}
           <input
             ref={fileInput}
             type="file"
@@ -297,28 +322,37 @@ export function RunContent({ activityId }: { activityId: string }) {
               event.target.value = "";
             }}
           />
+          <input
+            ref={cameraInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            onChange={(event) => {
+              addFiles(event.target.files);
+              event.target.value = "";
+            }}
+          />
 
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
-              disabled={chosen.length >= MAX_RUNNER_PHOTOS}
+              disabled={full}
               className="transition-opacity hover:opacity-50"
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                fontSize: "var(--text-sm)",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                color: "var(--black)",
-                borderBottom: "1px solid var(--black)",
-                paddingBottom: "0.3rem",
-                opacity: chosen.length >= MAX_RUNNER_PHOTOS ? 0.35 : 1,
-              }}
+              style={{ ...ACTION_STYLE, opacity: full ? 0.35 : 1 }}
             >
               From your phone
+            </button>
+
+            <button
+              type="button"
+              onClick={() => cameraInput.current?.click()}
+              disabled={full}
+              className="transition-opacity hover:opacity-50"
+              style={{ ...ACTION_STYLE, opacity: full ? 0.35 : 1 }}
+            >
+              Take a photo
             </button>
 
             {chosen.length > 0 ? (
@@ -327,14 +361,9 @@ export function RunContent({ activityId }: { activityId: string }) {
                 onClick={() => setChosen([])}
                 className="transition-opacity hover:opacity-50"
                 style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  fontSize: "var(--text-sm)",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
+                  ...ACTION_STYLE,
                   color: "var(--gray-3)",
+                  borderBottom: "none",
                 }}
               >
                 Clear

@@ -42,11 +42,31 @@ function makeCanvas(width: number, height: number): HTMLCanvasElement {
 }
 
 /**
+ * Does this blob look like HEIC/HEIF?
+ *
+ * Only consulted *after* a decode has already failed, because Safari decodes
+ * HEIC natively via the system codec — assuming it's unreadable up front would
+ * reject photos that work fine on the phones this thing is actually used from.
+ * The type is often an empty string when the file comes from the Files app, so
+ * the filename is the fallback.
+ */
+function looksLikeHeic(source: Blob): boolean {
+  if (/^image\/hei[cf]/i.test(source.type)) return true;
+  const name = source instanceof File ? source.name : "";
+  return /\.hei[cf]$/i.test(name);
+}
+
+/**
  * Decode a photo, honouring EXIF orientation.
  *
  * `imageOrientation: "from-image"` is doing real work here: phone cameras
  * routinely store a landscape sensor read plus a rotation flag, and without
  * this every portrait photo prints on its side.
+ *
+ * Note the `accept="image/*"` on the file input is load-bearing for iPhones:
+ * with that exact value iOS transcodes HEIC to JPEG on its way out of the
+ * picker. Adding `.heic` to `accept` turns the transcode off and hands over the
+ * original — don't.
  */
 async function decode(source: Blob | string): Promise<ImageBitmap> {
   if (typeof source === "string") {
@@ -58,7 +78,48 @@ async function decode(source: Blob | string): Promise<ImageBitmap> {
       imageOrientation: "from-image",
     });
   }
-  return createImageBitmap(source, { imageOrientation: "from-image" });
+
+  try {
+    return await createImageBitmap(source, { imageOrientation: "from-image" });
+  } catch (error) {
+    // A bare "The source image could not be decoded" tells the runner nothing
+    // and tells us nothing either. Name the format when we can recognise it.
+    if (!looksLikeHeic(source)) throw error;
+
+    const jpeg = await heicToJpeg(source);
+    return createImageBitmap(jpeg, { imageOrientation: "from-image" });
+  }
+}
+
+/**
+ * Transcode a HEIC blob to JPEG with libheif, compiled to WASM.
+ *
+ * Imported dynamically, and only from the catch above, for two reasons: it's a
+ * 1.3MB bundle nobody should pay for on the common path, and it touches
+ * `window` at module scope, so it can't be evaluated during the server render.
+ *
+ * Orientation is handled by libheif itself — it applies the container's
+ * rotation transform while decoding and re-encodes upright, with no EXIF tag on
+ * the way out. That's why the `from-image` hint above is a no-op here and not a
+ * second rotation.
+ */
+async function heicToJpeg(source: Blob): Promise<Blob> {
+  let converted: Blob | Blob[];
+  try {
+    const { default: heic2any } = await import("heic2any");
+    // Quality is generous relative to the destination — the image is about to
+    // be crushed to 1-bit at 368px, so this is only guarding against JPEG
+    // artefacts surviving into the dither as texture.
+    converted = await heic2any({ blob: source, toType: "image/jpeg", quality: 0.9 });
+  } catch {
+    throw new Error("couldn't read that HEIC — try taking the photo here instead");
+  }
+
+  // A HEIC can hold a burst or a live photo, in which case this comes back as
+  // a list. The first frame is the one the picker showed.
+  const jpeg = Array.isArray(converted) ? converted[0] : converted;
+  if (!jpeg) throw new Error("that HEIC had no image in it");
+  return jpeg;
 }
 
 /** Rec. 601 luma — the same weighting Pillow's `convert("L")` uses. */
