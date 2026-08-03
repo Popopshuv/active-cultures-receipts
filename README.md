@@ -19,6 +19,10 @@ Two apps:
 Built on the Group Dynamics starter — design rules in
 [CLAUDE.md](./CLAUDE.md) and [GROUP-D-SYSTEM.md](./GROUP-D-SYSTEM.md).
 
+**Running the actual Pi?** See [docs/PI-RUNBOOK.md](./docs/PI-RUNBOOK.md) — real
+hostnames, real USB ids, calibration results, and the failure modes we've
+already hit.
+
 ---
 
 ## The idea worth knowing
@@ -181,10 +185,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi/active-cultures/pi-server
-EnvironmentFile=/home/pi/active-cultures/pi-server/.env
-ExecStart=/home/pi/active-cultures/pi-server/.venv/bin/python3 app.py
+User=groupdynamics
+WorkingDirectory=/home/groupdynamics/active-cultures-receipts/pi-server
+EnvironmentFile=/home/groupdynamics/active-cultures-receipts/pi-server/.env
+ExecStart=/home/groupdynamics/active-cultures-receipts/pi-server/.venv/bin/python3 app.py
 Restart=on-failure
 RestartSec=3
 
