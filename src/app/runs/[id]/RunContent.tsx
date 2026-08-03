@@ -20,6 +20,23 @@ import type { ReceiptPayload } from "@/lib/receiptPayload";
 
 type Phase = "loading" | "ready" | "printing" | "printed" | "error";
 
+/**
+ * One photo the runner can pick from.
+ *
+ * Strava images and camera-roll images live in the same strip so they behave
+ * identically — tap to add, tap to remove. A phone photo that's been added but
+ * deselected stays in the strip rather than vanishing, so changing your mind is
+ * reversible without re-opening the picker.
+ */
+interface PhotoOption {
+  /** Stable identity. For Strava photos this is the URL itself. */
+  key: string;
+  /** Thumbnail source — an object URL for uploads, the proxy URL for Strava. */
+  url: string;
+  /** Set for uploads only. This, not `url`, is what gets dithered. */
+  file?: File;
+}
+
 const LABEL_STYLE = {
   fontSize: "var(--text-xs)",
   letterSpacing: "0.3em",
@@ -48,7 +65,9 @@ export function RunContent({ activityId }: { activityId: string }) {
   const [message, setMessage] = useState<string | null>(null);
   const [basePayload, setBasePayload] = useState<ReceiptPayload | null>(null);
   const [stravaPhotos, setStravaPhotos] = useState<string[]>([]);
-  const [chosen, setChosen] = useState<(string | File)[]>([]);
+  const [uploads, setUploads] = useState<PhotoOption[]>([]);
+  /** Selected keys, in print order. */
+  const [chosen, setChosen] = useState<string[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [rendering, setRendering] = useState(false);
 
@@ -56,7 +75,14 @@ export function RunContent({ activityId }: { activityId: string }) {
   // send precisely what the preview rendered, with no re-derivation.
   const printPayload = useRef<ReceiptPayload | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  const cameraInput = useRef<HTMLInputElement>(null);
+  /** Distinguishes two picks of the same file, which are otherwise identical. */
+  const uploadSeq = useRef(0);
+
+  // Mirrors `uploads`, written alongside it in `addFiles` — the only place
+  // uploads change. The preview effect keys off the selection alone, since a
+  // photo added while three are already chosen changes the strip but not the
+  // receipt, and reads the pool through here instead of through a dependency.
+  const uploadsRef = useRef<PhotoOption[]>([]);
 
   // Load the activity.
   useEffect(() => {
@@ -92,11 +118,17 @@ export function RunContent({ activityId }: { activityId: string }) {
     };
   }, [activityId, router]);
 
-  const toggleStravaPhoto = useCallback((url: string) => {
+  /**
+   * Add or remove a photo.
+   *
+   * Deselecting and reselecting is how you reorder: the receipt prints in
+   * selection order, so a photo re-tapped goes to the back of the queue.
+   */
+  const toggle = useCallback((key: string) => {
     setChosen((current) => {
-      if (current.includes(url)) return current.filter((p) => p !== url);
+      if (current.includes(key)) return current.filter((k) => k !== key);
       if (current.length >= MAX_RUNNER_PHOTOS) return current;
-      return [...current, url];
+      return [...current, key];
     });
   }, []);
 
@@ -107,22 +139,33 @@ export function RunContent({ activityId }: { activityId: string }) {
     // list is already gone by the time React calls back.
     const picked = Array.from(files);
     if (picked.length === 0) return;
+
+    const added: PhotoOption[] = picked.map((file) => ({
+      key: `upload:${(uploadSeq.current += 1)}`,
+      url: URL.createObjectURL(file),
+      file,
+    }));
+
+    // Everything picked joins the strip; only what fits gets selected. Adding
+    // five and choosing three beats being told you can only pick three.
+    uploadsRef.current = [...uploadsRef.current, ...added];
+    setUploads(uploadsRef.current);
     setChosen((current) => {
       const room = MAX_RUNNER_PHOTOS - current.length;
-      return room <= 0 ? current : [...current, ...picked.slice(0, room)];
+      return room <= 0
+        ? current
+        : [...current, ...added.slice(0, room).map((a) => a.key)];
     });
   }, []);
 
+  const options = useMemo<PhotoOption[]>(
+    () => [...stravaPhotos.map((url) => ({ key: url, url })), ...uploads],
+    [stravaPhotos, uploads],
+  );
+
   const full = chosen.length >= MAX_RUNNER_PHOTOS;
   const hasPrintBlock = phase === "ready" || phase === "printing";
-
-  const chosenKey = useMemo(
-    () =>
-      chosen
-        .map((p) => (typeof p === "string" ? p : `${p.name}:${p.size}:${p.lastModified}`))
-        .join("|"),
-    [chosen],
-  );
+  const chosenKey = chosen.join("|");
 
   // Re-render the preview whenever the payload or the photo selection changes.
   useEffect(() => {
@@ -133,9 +176,16 @@ export function RunContent({ activityId }: { activityId: string }) {
     (async () => {
       setRendering(true);
       try {
+        // Resolve keys back to what actually gets dithered: the File for an
+        // upload, the URL itself for a Strava photo.
+        const picked = chosen.map((key) => {
+          const upload = uploadsRef.current.find((u) => u.key === key);
+          return upload?.file ?? key;
+        });
+
         // House photos always print, and always last — they're the shop, not
         // the run. Dithering happens here, in the browser, at print size.
-        const batch = await toThermalPhotos([...chosen, ...HOUSE_PHOTOS]);
+        const batch = await toThermalPhotos([...picked, ...HOUSE_PHOTOS]);
         if (cancelled) return;
 
         // Say so rather than quietly printing a receipt with fewer photos
@@ -174,7 +224,7 @@ export function RunContent({ activityId }: { activityId: string }) {
     return () => {
       cancelled = true;
     };
-    // chosenKey stands in for `chosen` — File objects aren't value-comparable.
+    // chosenKey stands in for `chosen`, whose identity changes on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basePayload, chosenKey]);
 
@@ -184,6 +234,15 @@ export function RunContent({ activityId }: { activityId: string }) {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     },
     [previewUrl],
+  );
+
+  // Thumbnail object URLs outlive every selection change, so they're released
+  // once on unmount rather than tracked per photo.
+  useEffect(
+    () => () => {
+      for (const upload of uploadsRef.current) URL.revokeObjectURL(upload.url);
+    },
+    [],
   );
 
   const print = useCallback(async () => {
@@ -263,11 +322,17 @@ export function RunContent({ activityId }: { activityId: string }) {
 
       {phase !== "error" && phase !== "printed" ? (
         <Reveal preset="fade-up" delay={0.45} triggerOnScroll={false}>
+          {/* When the selection is full, tapping an unselected photo does
+              nothing — say why rather than letting it read as a broken tap. */}
           <p style={{ ...LABEL_STYLE, marginBottom: "1rem" }}>
             {chosen.length} of {MAX_RUNNER_PHOTOS} chosen
+            {full ? " — remove one to swap" : null}
           </p>
 
-          {stravaPhotos.length > 0 ? (
+          {/* Strava photos and camera-roll photos in one strip. The number on a
+              selected photo is its position on the paper — deselect and
+              reselect to move it to the end. */}
+          {options.length > 0 ? (
             <div
               style={{
                 display: "flex",
@@ -276,15 +341,18 @@ export function RunContent({ activityId }: { activityId: string }) {
                 marginBottom: "1.25rem",
               }}
             >
-              {stravaPhotos.map((url) => {
-                const selected = chosen.includes(url);
+              {options.map((option) => {
+                const order = chosen.indexOf(option.key);
+                const selected = order !== -1;
                 return (
                   <button
-                    key={url}
+                    key={option.key}
                     type="button"
-                    onClick={() => toggleStravaPhoto(url)}
+                    onClick={() => toggle(option.key)}
+                    aria-pressed={selected}
                     className="transition-opacity hover:opacity-50"
                     style={{
+                      position: "relative",
                       padding: 0,
                       border: selected
                         ? "1px solid var(--black)"
@@ -297,21 +365,39 @@ export function RunContent({ activityId }: { activityId: string }) {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={url}
+                      src={option.url}
                       alt=""
                       width={72}
                       height={72}
                       style={{ objectFit: "cover", display: "block" }}
                     />
+                    {selected ? (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          minWidth: "1.25rem",
+                          padding: "0.15rem 0.3rem",
+                          background: "var(--black)",
+                          color: "var(--white)",
+                          fontSize: "var(--text-sm)",
+                          letterSpacing: "0.02em",
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {order + 1}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
             </div>
           ) : null}
 
-          {/* Two inputs, not one. `capture` on a single input would force the
-              camera and take the camera roll away entirely — and the camera
-              path is the reliable one, since it always hands back a JPEG. */}
+          {/* No `capture` attribute: iOS already offers Photo Library / Take
+              Photo / Choose Files from this one input, and setting `capture`
+              would replace that sheet with the camera outright. */}
           <input
             ref={fileInput}
             type="file"
@@ -324,37 +410,15 @@ export function RunContent({ activityId }: { activityId: string }) {
               event.target.value = "";
             }}
           />
-          <input
-            ref={cameraInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(event) => {
-              addFiles(event.target.files);
-              event.target.value = "";
-            }}
-          />
 
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
-              disabled={full}
               className="transition-opacity hover:opacity-50"
-              style={{ ...ACTION_STYLE, opacity: full ? 0.35 : 1 }}
+              style={ACTION_STYLE}
             >
-              From your phone
-            </button>
-
-            <button
-              type="button"
-              onClick={() => cameraInput.current?.click()}
-              disabled={full}
-              className="transition-opacity hover:opacity-50"
-              style={{ ...ACTION_STYLE, opacity: full ? 0.35 : 1 }}
-            >
-              Take a photo
+              Add a photo
             </button>
 
             {chosen.length > 0 ? (
