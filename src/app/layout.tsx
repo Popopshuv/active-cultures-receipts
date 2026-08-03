@@ -68,12 +68,7 @@ console.warn('[reveal] failsafe fired — content was stuck hidden')}
         />
       </head>
       <body className="min-h-full">
-        {/* No 3D backdrop. This is a kiosk people open on their phone in a
-            shop: the decorative canvas buys nothing and costs a WebGL context
-            on every page, which is the most fragile thing in the tree on iOS.
-            If it fails to initialise it can take React down with it, and every
-            reveal target then stays at its hidden start state forever. */}
-        <ClientShell canvas3d={false}>{children}</ClientShell>
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );

@@ -142,7 +142,7 @@ export function HomeContent() {
             color: "var(--gray-3)",
           }}
         >
-          Powered by Strava
+          Active Cultures 2026
         </Reveal>
       </div>
     </section>
