@@ -179,8 +179,9 @@ export function ReceiptDoc({
         fontWeight: 300,
       }}
     >
-      {/* Masthead — artwork, not type. Placed at its native pixel size so the
-          halftone survives; see MASTHEAD in receiptConfig. */}
+      {/* Masthead — artwork, not type. Placed at its native pixel size: it
+          arrives already thresholded to 1-bit, and resampling would soften the
+          edges back into greys. See MASTHEAD in receiptConfig. */}
       {mastheadSrc ? (
         <Block align="center">
           {/* eslint-disable-next-line @next/next/no-img-element */}

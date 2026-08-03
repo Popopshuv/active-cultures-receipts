@@ -147,16 +147,20 @@ export const TONE = {
  * exactly these dimensions, and any mismatch resamples it, which would chew up
  * the halftone detail in the artwork.
  *
- * To swap it: run the source art through the same treatment — downscale to
- * `CONTENT_WIDTH` with Lanczos, then a hard threshold around 128. Thresholding
- * beats dithering here; the art is already high-contrast, and error diffusion
- * makes it print too light.
+ * To swap it: trim the source to its ink bounding box so the art spans the
+ * full content width, downscale to `CONTENT_WIDTH` with Lanczos, then apply a
+ * hard threshold around 128 and update `height` to the result. Thresholding
+ * beats dithering here; the art is already high-contrast — the current logo is
+ * under 3% mid-greys before the cut — and error diffusion makes it print light.
+ *
+ * Flatten any alpha onto white first. A transparent background carried into a
+ * greyscale conversion reads as black and prints as a solid slab.
  */
 export const MASTHEAD = {
   /** Path under the repo root. Read at render time and inlined as a data URI. */
   file: "public/receipt/masthead.png",
   width: CONTENT_WIDTH,
-  height: 417,
+  height: 314,
 } as const;
 
 /** Shop details, printed at the foot of every receipt. */

@@ -59,6 +59,16 @@ const ACTION_STYLE = {
 };
 
 /**
+ * How long the confirmation holds before the screen returns home.
+ *
+ * The Strava session is already gone by the time this starts — `/api/print`
+ * deauthorises and clears the cookie before it responds — so this is only about
+ * giving the runner time to read the confirmation before the screen resets for
+ * whoever scans the QR code next.
+ */
+const PRINTED_RESET_MS = 6000;
+
+/**
  * The primary action.
  *
  * This is the page's one red moment. It appears twice — once above the preview
@@ -289,6 +299,15 @@ export function RunContent({ activityId }: { activityId: string }) {
       setMessage("Couldn't reach the printer.");
     }
   }, []);
+
+  // Hand the screen back once the receipt is printing. `replace`, not `push`:
+  // the run this points at needs a Strava session that no longer exists, so
+  // leaving it in history would only offer the runner a dead page to go back to.
+  useEffect(() => {
+    if (phase !== "printed") return;
+    const timer = setTimeout(() => router.replace("/"), PRINTED_RESET_MS);
+    return () => clearTimeout(timer);
+  }, [phase, router]);
 
   // Rendered in two places. Built once so the disabled state, the label and
   // the styling can't drift between the copy above the preview and the one
