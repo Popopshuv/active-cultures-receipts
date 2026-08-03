@@ -19,9 +19,11 @@ Two apps:
 Built on the Group Dynamics starter — design rules in
 [CLAUDE.md](./CLAUDE.md) and [GROUP-D-SYSTEM.md](./GROUP-D-SYSTEM.md).
 
-**Running the actual Pi?** See [docs/PI-RUNBOOK.md](./docs/PI-RUNBOOK.md) — real
-hostnames, real USB ids, calibration results, and the failure modes we've
-already hit.
+- **Setting up before a run?** [docs/QUICKSTART.md](./docs/QUICKSTART.md) — SSH
+  in, open the tunnel, redeploy, test print. The checklist.
+- **Something's wrong with the Pi?** [docs/PI-RUNBOOK.md](./docs/PI-RUNBOOK.md)
+  — real hostnames, real USB ids, calibration results, and the failure modes
+  we've already hit.
 
 ---
 
