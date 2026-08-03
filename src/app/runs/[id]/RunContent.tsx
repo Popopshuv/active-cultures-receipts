@@ -111,10 +111,19 @@ export function RunContent({ activityId }: { activityId: string }) {
       try {
         // House photos always print, and always last — they're the shop, not
         // the run. Dithering happens here, in the browser, at print size.
-        const photos = await toThermalPhotos([...chosen, ...HOUSE_PHOTOS]);
+        const batch = await toThermalPhotos([...chosen, ...HOUSE_PHOTOS]);
         if (cancelled) return;
 
-        const payload: ReceiptPayload = { ...basePayload, photos };
+        // Say so rather than quietly printing a receipt with fewer photos
+        // than were picked.
+        setMessage(
+          batch.failed > 0
+            ? `Couldn't use ${batch.failed} photo${batch.failed > 1 ? "s" : ""}` +
+              (batch.reason ? ` — ${batch.reason}` : "")
+            : null,
+        );
+
+        const payload: ReceiptPayload = { ...basePayload, photos: batch.photos };
         printPayload.current = payload;
 
         const response = await fetch("/api/receipt", {

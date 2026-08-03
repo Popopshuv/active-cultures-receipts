@@ -109,9 +109,9 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   h += RULE_BLOCK;
   const footerCount = payload.footerLines?.length ?? 0;
   h += footerCount * LINE_H.label;
-  // Strava attribution always prints; Garmin sometimes does. Count both so a
-  // Garmin activity can never be the thing that overflows.
-  h += 2 * LINE_H.micro;
+  // Garmin attribution only prints for Garmin activities. Counted always, so
+  // one can never be the thing that overflows the canvas.
+  h += LINE_H.micro;
   h += GAP.section;
   h += LINE_H.micro;
 

@@ -90,7 +90,6 @@ export const SAMPLE_RUN: ReceiptPayload = {
   total: {
     label: "TOTAL MILES",
     value: "4.02",
-    note: "(NO ONE LEFT BEHIND)",
   },
   polyline: libertyParkLoop(),
   photos: [],

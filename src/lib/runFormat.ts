@@ -164,7 +164,6 @@ export function buildReceipt(
     total: {
       label: "TOTAL MILES",
       value: distance,
-      note: "(NO ONE LEFT BEHIND)",
     },
     polyline: activity.map?.summary_polyline ?? activity.map?.polyline ?? null,
     photos,

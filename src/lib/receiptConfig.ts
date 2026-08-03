@@ -146,12 +146,25 @@ export const MASTHEAD = {
   height: 417,
 } as const;
 
-/** Closing lines above the ticket stamp. */
-export const FOOTER_LINES = ["NO ONE LEFT BEHIND"] as const;
+/** Shop details, printed at the foot of every receipt. */
+export const FOOTER_LINES = [
+  "ACTIVE CULTURES",
+  "925 E 900 S",
+  "SLC, UT",
+] as const;
 
 /**
- * Attribution required by the Strava API agreement. The Garmin line is only
- * added when the activity reports a Garmin device — see `garminAttribution`.
+ * Attribution.
+ *
+ * The Garmin line is required by a clause in the Strava API agreement and
+ * prints whenever the activity reports a Garmin device — see
+ * `garminAttribution`.
+ *
+ * `strava` is deliberately not rendered at the moment. Note that Strava's
+ * agreement expects attribution on anything displaying its data, and app
+ * review — which you need to pass to go beyond ten connected athletes — is
+ * where its absence would surface. Kept here so putting it back is a one-line
+ * change in `ReceiptDoc` rather than a rewrite.
  */
 export const ATTRIBUTION = {
   strava: "POWERED BY STRAVA",

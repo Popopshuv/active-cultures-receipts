@@ -22,6 +22,8 @@ if (typeof window !== "undefined") {
   );
 }
 
+import { siteConfig } from "./siteConfig";
+
 function required(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -32,9 +34,6 @@ function required(name: string): string {
   return value;
 }
 
-function optional(name: string, fallback: string): string {
-  return process.env[name] || fallback;
-}
 
 /** Strava OAuth app credentials, from strava.com/settings/api. */
 export const strava = {
@@ -89,9 +88,8 @@ export function operatorPasscode(): string {
  * separately, so development needs no extra setup.
  */
 export function siteOrigin(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercel) return `https://${vercel}`;
-  return optional("SITE_ORIGIN", "http://localhost:3000");
+  // Shares `siteConfig`'s resolution so the OAuth redirect_uri and the
+  // metadata base can never disagree about what host we are — and so a
+  // scheme-less value pasted from the address bar is repaired in both.
+  return siteConfig.url;
 }

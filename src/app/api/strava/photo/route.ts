@@ -14,17 +14,26 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-/** Strava serves activity photos from CloudFront and its own subdomains. */
-const ALLOWED_HOSTS = [
-  "dgalywyr863hv.cloudfront.net",
-  "d3nn82uaxijpm6.cloudfront.net",
-  "content.strava.com",
-  "graph.strava.com",
-];
+/**
+ * Hosts we'll proxy from.
+ *
+ * Strava serves activity photos off CloudFront distributions whose exact
+ * subdomains change, so pinning individual ones breaks the photo picker
+ * silently — the thumbnail 403s, `toThermalPhotos` drops the photo, and the
+ * receipt just prints without it. Matching the CDN suffix instead survives
+ * that.
+ *
+ * Widening to all of `cloudfront.net` does mean someone could proxy other
+ * CloudFront content through us. That's tolerable: it's a public CDN, so
+ * there's no internal network or cloud-metadata endpoint reachable this way,
+ * the response must be an `image/*`, and no credentials are ever forwarded.
+ * What actually matters is that arbitrary hosts stay blocked.
+ */
+const ALLOWED_SUFFIXES = ["strava.com", "cloudfront.net"];
 
 function isAllowed(url: URL): boolean {
   if (url.protocol !== "https:") return false;
-  return ALLOWED_HOSTS.some(
+  return ALLOWED_SUFFIXES.some(
     (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
   );
 }
@@ -43,6 +52,9 @@ export async function GET(request: Request) {
   }
 
   if (!isAllowed(parsed)) {
+    // Named in the log: a rejected host is otherwise invisible — the picker
+    // just shows a broken thumbnail and photos quietly stop reaching receipts.
+    console.warn(`[photo] blocked host ${parsed.hostname}`);
     return NextResponse.json({ ok: false, error: "host not allowed" }, { status: 403 });
   }
 

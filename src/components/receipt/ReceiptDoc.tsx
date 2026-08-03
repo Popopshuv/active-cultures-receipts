@@ -25,7 +25,6 @@
  */
 
 import {
-  ATTRIBUTION,
   MASTHEAD,
   CONTENT_WIDTH,
   GAP,
@@ -196,13 +195,13 @@ export function ReceiptDoc({
         </Block>
       ) : null}
 
-      {/* Title block */}
+      {/* Title block. Flush left — the artwork above carries the centred
+          symmetry, so the type reads better set against the left edge. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: CONTENT_WIDTH,
-          alignItems: "center",
           marginTop: GAP.section,
         }}
       >
@@ -210,19 +209,15 @@ export function ReceiptDoc({
           size={TYPE.brand}
           lineHeight={LINE_H.brand}
           tracking={TRACKING.brand}
-          align="center"
         >
           {payload.title.toUpperCase()}
         </Line>
-        {payload.subtitle ? (
-          <Line align="center">{payload.subtitle.toUpperCase()}</Line>
-        ) : null}
+        {payload.subtitle ? <Line>{payload.subtitle.toUpperCase()}</Line> : null}
         {payload.dateLine ? (
           <Line
             size={TYPE.label}
             lineHeight={LINE_H.label}
             tracking={TRACKING.label}
-            align="center"
           >
             {payload.dateLine.toUpperCase()}
           </Line>
@@ -327,13 +322,13 @@ export function ReceiptDoc({
 
       <Rule />
 
-      {/* Footer + the attribution the Strava API agreement requires. */}
+      {/* Shop details, plus the Garmin attribution the API agreement requires
+          whenever the activity came off a Garmin device. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: CONTENT_WIDTH,
-          alignItems: "center",
         }}
       >
         {(payload.footerLines ?? []).map((line) => (
@@ -342,25 +337,15 @@ export function ReceiptDoc({
             size={TYPE.label}
             lineHeight={LINE_H.label}
             tracking={TRACKING.label}
-            align="center"
           >
             {line}
           </Line>
         ))}
-        <Line
-          size={TYPE.micro}
-          lineHeight={LINE_H.micro}
-          tracking={TRACKING.micro}
-          align="center"
-        >
-          {ATTRIBUTION.strava}
-        </Line>
         {garmin ? (
           <Line
             size={TYPE.micro}
             lineHeight={LINE_H.micro}
             tracking={TRACKING.micro}
-            align="center"
           >
             {garmin}
           </Line>

@@ -246,18 +246,44 @@ export async function toThermalPhoto(
   }
 }
 
-/** Convert several photos, dropping any that fail rather than losing them all. */
+export interface ThermalBatch {
+  photos: ReceiptPhoto[];
+  /** How many sources failed to convert. */
+  failed: number;
+  /** First failure's message, for showing the user something specific. */
+  reason?: string;
+}
+
+/**
+ * Convert several photos.
+ *
+ * One bad photo shouldn't cost the others, so failures are dropped rather
+ * than thrown — but the count comes back so the caller can say so. Silently
+ * dropping them means a runner picks three photos, gets a receipt with none,
+ * and has no idea why.
+ */
 export async function toThermalPhotos(
   sources: readonly (Blob | string)[],
   targetWidth: number = PHOTO_WIDTH,
-): Promise<ReceiptPhoto[]> {
+): Promise<ThermalBatch> {
   const results = await Promise.allSettled(
     sources.map((source) => toThermalPhoto(source, targetWidth)),
   );
 
-  return results.flatMap((result) => {
-    if (result.status === "fulfilled") return [result.value];
+  const photos: ReceiptPhoto[] = [];
+  let failed = 0;
+  let reason: string | undefined;
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      photos.push(result.value);
+      continue;
+    }
+    failed += 1;
+    reason ??=
+      result.reason instanceof Error ? result.reason.message : String(result.reason);
     console.warn("[thermal] photo skipped:", result.reason);
-    return [];
-  });
+  }
+
+  return { photos, failed, reason };
 }
