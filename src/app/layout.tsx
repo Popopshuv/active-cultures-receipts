@@ -67,7 +67,10 @@ console.warn('[reveal] failsafe fired — content was stuck hidden')}
         />
       </head>
       <body className="min-h-full">
-        <ClientShell>{children}</ClientShell>
+        {/* 3D backdrop off. Flip to `canvas3d` (or drop the prop) to bring the
+            wireframe sphere back — it stays wired up and viewport-fitted in
+            BackgroundCanvas, it just isn't mounted. */}
+        <ClientShell canvas3d={false}>{children}</ClientShell>
       </body>
     </html>
   );
