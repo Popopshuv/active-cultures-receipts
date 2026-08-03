@@ -46,12 +46,11 @@ export default function RootLayout({
             markup, so a crash anywhere in the tree leaves the page blank with
             no error visible to the person holding the phone.
 
-            After 6s — past the transition watchdog, so a slow-but-working
-            transition won't trip it — check whether anything currently *in the
-            viewport* is still hidden. Off-screen elements are excluded because
+            Fires 2.5s after load. The slowest legitimate reveal on any page
+            starts at 0.95s and runs 0.8s, so anything still hidden by then is
+            stuck. Only elements currently *in the viewport* count —
             scroll-triggered reveals are legitimately hidden until scrolled to.
-            If something on screen is stuck, force everything visible. Motion is
-            lost; the content is not. */}
+            Motion is lost; the content is not. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `setTimeout(function(){try{
@@ -63,7 +62,7 @@ if(stuck){var t=document.createElement('style');
 t.textContent='[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}.reveal-item{visibility:visible!important}.reveal-mask{display:none!important}';
 document.head.appendChild(t);
 console.warn('[reveal] failsafe fired — content was stuck hidden')}
-}catch(err){}},6000)`,
+}catch(err){}},2500)`,
           }}
         />
       </head>
