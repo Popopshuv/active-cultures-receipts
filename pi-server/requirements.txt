@@ -1,0 +1,14 @@
+flask>=3.0
+pillow>=10.0
+
+# Direct USB ESC/POS — talks to the thermal printer natively without going
+# through CUPS. python-escpos depends on pyusb which depends on libusb, so
+# install the system library first: sudo apt install -y libusb-1.0-0
+python-escpos>=3.0
+pyusb>=1.2
+
+# Deliberately absent:
+#   flask-cors  — nothing browser-side reaches this server. The Next.js app
+#                 proxies every call server-to-server, which is also why the
+#                 print token never ships in a client bundle.
+#   picamera2   — no camera on this one.
