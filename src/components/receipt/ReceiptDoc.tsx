@@ -37,7 +37,7 @@ import {
   ROUTE,
   TRACKING,
   TYPE,
-  garminAttribution,
+  ATTRIBUTION,
 } from "@/lib/receiptConfig";
 import type { ReceiptPayload, ReceiptStat } from "@/lib/receiptPayload";
 import { polylineToDataUri } from "@/lib/polyline";
@@ -165,8 +165,6 @@ export function ReceiptDoc({
     stroke: ROUTE.stroke,
     padding: ROUTE.padding,
   });
-
-  const garmin = garminAttribution(payload.deviceName);
 
   return (
     <div
@@ -322,8 +320,8 @@ export function ReceiptDoc({
 
       <Rule />
 
-      {/* Shop details, plus the Garmin attribution the API agreement requires
-          whenever the activity came off a Garmin device. */}
+      {/* Shop details and the studio credit. On the Garmin attribution that
+          used to print here, see the note in `receiptConfig.ATTRIBUTION`. */}
       <div
         style={{
           display: "flex",
@@ -341,15 +339,13 @@ export function ReceiptDoc({
             {line}
           </Line>
         ))}
-        {garmin ? (
-          <Line
-            size={TYPE.micro}
-            lineHeight={LINE_H.micro}
-            tracking={TRACKING.micro}
-          >
-            {garmin}
-          </Line>
-        ) : null}
+        <Line
+          size={TYPE.micro}
+          lineHeight={LINE_H.micro}
+          tracking={TRACKING.micro}
+        >
+          {ATTRIBUTION.builtBy}
+        </Line>
       </div>
 
       {/* Stamp */}

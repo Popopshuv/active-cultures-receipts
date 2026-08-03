@@ -109,8 +109,7 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   h += RULE_BLOCK;
   const footerCount = payload.footerLines?.length ?? 0;
   h += footerCount * LINE_H.label;
-  // Garmin attribution only prints for Garmin activities. Counted always, so
-  // one can never be the thing that overflows the canvas.
+  // Studio credit, which prints unconditionally.
   h += LINE_H.micro;
   h += GAP.section;
   h += LINE_H.micro;

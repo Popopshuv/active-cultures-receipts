@@ -156,19 +156,25 @@ export const FOOTER_LINES = [
 /**
  * Attribution.
  *
- * The Garmin line is required by a clause in the Strava API agreement and
- * prints whenever the activity reports a Garmin device — see
- * `garminAttribution`.
+ * Neither `strava` nor `garmin` is rendered at the moment — both are kept here
+ * so putting one back is a one-line change in `ReceiptDoc` rather than a
+ * rewrite.
  *
- * `strava` is deliberately not rendered at the moment. Note that Strava's
- * agreement expects attribution on anything displaying its data, and app
- * review — which you need to pass to go beyond ten connected athletes — is
- * where its absence would surface. Kept here so putting it back is a one-line
- * change in `ReceiptDoc` rather than a rewrite.
+ * Know what you're opting out of. Strava's agreement expects attribution on
+ * anything displaying its data, and a clause of it requires crediting Garmin
+ * when the activity came off a Garmin device. App review — which you need to
+ * pass to go beyond ten connected athletes — is where their absence would
+ * surface.
  */
 export const ATTRIBUTION = {
   strava: "POWERED BY STRAVA",
   garmin: "ACTIVITY DATA FROM GARMIN",
+  /**
+   * Studio credit. Prints on every receipt, so it's rendered straight from
+   * here rather than travelling through `footerLines` on the payload — it
+   * isn't run data, and the operator's test print should carry it too.
+   */
+  builtBy: "BUILT BY GROUPDYNAMICS.NET",
 } as const;
 
 /**
@@ -185,6 +191,10 @@ export const HOUSE_PHOTOS: readonly string[] = [
 /**
  * The Strava API agreement requires attributing Garmin when the displayed
  * activity data came off a Garmin device.
+ *
+ * Currently dormant — `ReceiptDoc` no longer calls this, and `deviceName` rides
+ * along on the payload unused. Both are left in place so restoring the line is
+ * one JSX block plus one `LINE_H.micro` in `estimateReceiptHeight`.
  */
 export function garminAttribution(deviceName?: string | null): string | null {
   if (!deviceName) return null;

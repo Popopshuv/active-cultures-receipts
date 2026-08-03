@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { RevealText } from "@/components/RevealText";
 import { Reveal } from "@/components/Reveal";
 import { TransitionLink } from "@/components/TransitionLink";
+import { SiteFooter } from "@/components/SiteFooter";
 import { polylineToDataUri } from "@/lib/polyline";
 
 interface RunSummary {
@@ -195,6 +196,10 @@ export function RunsContent() {
             </Reveal>
           );
         })}
+      </div>
+
+      <div style={{ marginTop: "auto", paddingTop: "clamp(3rem, 10vh, 6rem)" }}>
+        <SiteFooter delay={0.6} />
       </div>
     </section>
   );

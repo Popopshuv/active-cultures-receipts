@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RevealText } from "@/components/RevealText";
 import { Reveal } from "@/components/Reveal";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HOUSE_PHOTOS, MAX_RUNNER_PHOTOS } from "@/lib/receiptConfig";
 import { toThermalPhotos } from "@/lib/thermal";
 import type { ReceiptPayload } from "@/lib/receiptPayload";
@@ -113,6 +114,7 @@ export function RunContent({ activityId }: { activityId: string }) {
   }, []);
 
   const full = chosen.length >= MAX_RUNNER_PHOTOS;
+  const hasPrintBlock = phase === "ready" || phase === "printing";
 
   const chosenKey = useMemo(
     () =>
@@ -411,7 +413,7 @@ export function RunContent({ activityId }: { activityId: string }) {
         </p>
       ) : null}
 
-      {phase === "ready" || phase === "printing" ? (
+      {hasPrintBlock ? (
         <div style={{ marginTop: "auto", paddingTop: "2rem" }}>
           <button
             type="button"
@@ -453,6 +455,18 @@ export function RunContent({ activityId }: { activityId: string }) {
           we only needed it for the one run.
         </Reveal>
       ) : null}
+
+      {/* Only claim the leftover space when the print block above isn't
+          already claiming it — two `marginTop: auto` siblings split the free
+          space between them and leave the button stranded mid-page. */}
+      <div
+        style={{
+          marginTop: hasPrintBlock ? undefined : "auto",
+          paddingTop: "2rem",
+        }}
+      >
+        <SiteFooter delay={0.4} />
+      </div>
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { RevealText } from "@/components/RevealText";
 import { Reveal } from "@/components/Reveal";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * What a runner sees after scanning the QR code at the shop.
@@ -144,6 +145,10 @@ export function HomeContent() {
         >
           Active Cultures 2026
         </Reveal>
+
+        <div style={{ marginTop: "0.75rem" }}>
+          <SiteFooter delay={1.05} />
+        </div>
       </div>
     </section>
   );
