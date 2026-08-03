@@ -188,7 +188,7 @@ export function ManualContent() {
   return (
     <section
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         padding: "var(--page-pad)",
         paddingTop: "6rem",
         display: "flex",

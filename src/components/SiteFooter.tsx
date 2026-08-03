@@ -6,9 +6,9 @@ import { Reveal } from "./Reveal";
  * The studio credit at the foot of every runner-facing screen.
  *
  * Placed by each page rather than mounted globally in `ClientShell`: every
- * section on this site is `minHeight: 100vh` with a `marginTop: auto` bottom
- * block, so a footer appended after `<main>` would land below the fold on a
- * page that otherwise doesn't scroll. The pages own their own bottom edge.
+ * section on this site is a `minHeight: 100dvh` flex column, so a footer
+ * appended after `<main>` would land below the fold on a page that otherwise
+ * doesn't scroll. The pages own their own bottom edge.
  *
  * Deliberately not red — the shop's one accent per viewport is already spent
  * on the primary action (connect Strava, print receipt), and a second red would

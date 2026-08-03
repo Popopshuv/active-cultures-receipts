@@ -28,9 +28,13 @@ export function HomeContent() {
   return (
     <section
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         padding: "var(--page-pad)",
         paddingTop: "6rem",
+        // Room under the credit so it isn't flush against the bottom edge —
+        // and, on an iPhone, so a scrolled-to-bottom page doesn't leave the
+        // last line tucked behind Safari's floating address bar.
+        paddingBottom: "clamp(4rem, 10vh, 7rem)",
         display: "flex",
         flexDirection: "column",
       }}
@@ -104,10 +108,12 @@ export function HomeContent() {
         ) : null}
       </div>
 
+      {/* Sits under the copy rather than pinned to the bottom of the viewport.
+          Pinned, it landed behind Safari's floating address bar on an iPhone —
+          and there's nothing here that needs to be at the foot of the screen. */}
       <div
         style={{
-          marginTop: "auto",
-          paddingTop: "clamp(4rem, 12vh, 8rem)",
+          paddingTop: "clamp(2.5rem, 8vh, 4.5rem)",
           maxWidth: "30rem",
         }}
       >
@@ -154,13 +160,15 @@ export function HomeContent() {
           </div>
         </Reveal>
 
+        {/* The shop line and the credit read as a footer rather than as a
+            third button, so they get a clear break from the two above. */}
         <Reveal
           as="p"
           preset="fade"
           delay={0.95}
           triggerOnScroll={false}
           style={{
-            marginTop: "1.5rem",
+            marginTop: "clamp(3.5rem, 9vh, 5.5rem)",
             fontSize: "var(--text-xs)",
             letterSpacing: "0.3em",
             textTransform: "uppercase",

@@ -23,7 +23,7 @@ export function ClientShell({ children, canvas3d = true }: ClientShellProps) {
           <BackgroundCanvas />
         </CanvasBoundary>
       )}
-      <main className="relative z-10 min-h-screen">
+      <main className="relative z-10 min-h-dvh">
         <PageReveal>{children}</PageReveal>
       </main>
     </>
