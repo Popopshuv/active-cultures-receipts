@@ -50,6 +50,12 @@ export const TYPE = {
   body: 13,
   label: 11,
   micro: 10,
+  /**
+   * The floor. Used for the studio credit under the stamp, and about as small
+   * as this printer resolves — below 8 the mono glyphs start losing counters to
+   * the 1-bit threshold and the line prints as a grey smear.
+   */
+  nano: 8,
 } as const;
 
 /**
@@ -62,6 +68,7 @@ export const LINE_H: Record<keyof typeof TYPE, number> = {
   body: 18,
   label: 16,
   micro: 14,
+  nano: 12,
 };
 
 /** Letter-spacing, in em, mirroring the site's tracking ladder. */
@@ -81,6 +88,12 @@ export const GAP = {
   rule: 12,
   /** Between major blocks. */
   section: 16,
+  /**
+   * Between the stamp and the studio credit under it. Deliberately much
+   * smaller than `section` — the credit belongs to the ticket block, not to
+   * the shop's address above it, and the spacing is what says so.
+   */
+  credit: 6,
 };
 
 /** Blank dot-rows fed after the receipt so it clears the tear bar. */

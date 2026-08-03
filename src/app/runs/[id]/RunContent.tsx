@@ -58,6 +58,20 @@ const ACTION_STYLE = {
   borderBottom: "1px solid var(--black)",
 };
 
+/**
+ * The primary action.
+ *
+ * This is the page's one red moment. It appears twice — once above the preview
+ * and once below it — but the preview is a full receipt at print width, over a
+ * thousand pixels tall, so the two are never on screen together.
+ */
+const PRINT_STYLE = {
+  ...ACTION_STYLE,
+  paddingBottom: "0.35rem",
+  color: "var(--red)",
+  borderBottom: "1px solid var(--red)",
+};
+
 export function RunContent({ activityId }: { activityId: string }) {
   const router = useRouter();
 
@@ -276,6 +290,22 @@ export function RunContent({ activityId }: { activityId: string }) {
     }
   }, []);
 
+  // Rendered in two places. Built once so the disabled state, the label and
+  // the styling can't drift between the copy above the preview and the one
+  // below it.
+  const busy = rendering || phase === "printing";
+  const printButton = (
+    <button
+      type="button"
+      onClick={print}
+      disabled={busy || !previewUrl}
+      className="transition-opacity hover:opacity-50"
+      style={{ ...PRINT_STYLE, opacity: busy ? 0.35 : 1 }}
+    >
+      {phase === "printing" ? "Printing" : "Print receipt"}
+    </button>
+  );
+
   return (
     <section
       style={{
@@ -444,6 +474,12 @@ export function RunContent({ activityId }: { activityId: string }) {
           browser's idea of a smooth photo. */}
       {previewUrl ? (
         <Reveal preset="fade" delay={0.2} triggerOnScroll={false}>
+          {/* Repeated above the preview so the action is reachable without
+              scrolling past a receipt's worth of paper to find it. */}
+          {hasPrintBlock ? (
+            <div style={{ marginBottom: "1.75rem" }}>{printButton}</div>
+          ) : null}
+
           <p style={{ ...LABEL_STYLE, marginBottom: "0.75rem" }}>
             {rendering ? "Updating" : "Exactly what prints"}
           </p>
@@ -478,29 +514,7 @@ export function RunContent({ activityId }: { activityId: string }) {
       ) : null}
 
       {hasPrintBlock ? (
-        <div style={{ marginTop: "auto", paddingTop: "2rem" }}>
-          <button
-            type="button"
-            onClick={print}
-            disabled={rendering || phase === "printing" || !previewUrl}
-            className="transition-opacity hover:opacity-50"
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              paddingBottom: "0.35rem",
-              cursor: "pointer",
-              fontSize: "var(--text-sm)",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              color: "var(--red)",
-              borderBottom: "1px solid var(--red)",
-              opacity: rendering || phase === "printing" ? 0.35 : 1,
-            }}
-          >
-            {phase === "printing" ? "Printing" : "Print receipt"}
-          </button>
-        </div>
+        <div style={{ marginTop: "auto", paddingTop: "2rem" }}>{printButton}</div>
       ) : null}
 
       {phase === "printed" ? (

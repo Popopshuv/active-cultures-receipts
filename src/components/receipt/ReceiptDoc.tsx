@@ -320,8 +320,8 @@ export function ReceiptDoc({
 
       <Rule />
 
-      {/* Shop details and the studio credit. On the Garmin attribution that
-          used to print here, see the note in `receiptConfig.ATTRIBUTION`. */}
+      {/* Shop details. On the Garmin attribution that used to print here, see
+          the note in `receiptConfig.ATTRIBUTION`. */}
       <div
         style={{
           display: "flex",
@@ -339,13 +339,6 @@ export function ReceiptDoc({
             {line}
           </Line>
         ))}
-        <Line
-          size={TYPE.micro}
-          lineHeight={LINE_H.micro}
-          tracking={TRACKING.micro}
-        >
-          {ATTRIBUTION.builtBy}
-        </Line>
       </div>
 
       {/* Stamp */}
@@ -362,6 +355,20 @@ export function ReceiptDoc({
       >
         <div style={{ display: "flex" }}>{payload.ticket}</div>
         <div style={{ display: "flex" }}>{payload.stamp}</div>
+      </div>
+
+      {/* Studio credit. Below the stamp and a size down from it, so it reads as
+          a mark on the ticket rather than another line of the shop's address. */}
+      <div
+        style={{ display: "flex", width: CONTENT_WIDTH, marginTop: GAP.credit }}
+      >
+        <Line
+          size={TYPE.nano}
+          lineHeight={LINE_H.nano}
+          tracking={TRACKING.micro}
+        >
+          {ATTRIBUTION.builtBy}
+        </Line>
       </div>
     </div>
   );
