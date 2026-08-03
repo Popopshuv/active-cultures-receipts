@@ -40,9 +40,40 @@ export default function RootLayout({
         <noscript>
           <style>{`[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}.reveal-item{visibility:visible!important}.reveal-mask{display:none!important}`}</style>
         </noscript>
+
+        {/* Failsafe for the case the <noscript> block can't cover: JS that
+            loads and then throws. Reveal targets pre-hide themselves in the
+            markup, so a crash anywhere in the tree leaves the page blank with
+            no error visible to the person holding the phone.
+
+            After 6s — past the transition watchdog, so a slow-but-working
+            transition won't trip it — check whether anything currently *in the
+            viewport* is still hidden. Off-screen elements are excluded because
+            scroll-triggered reveals are legitimately hidden until scrolled to.
+            If something on screen is stuck, force everything visible. Motion is
+            lost; the content is not. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `setTimeout(function(){try{
+var n=document.querySelectorAll('[data-reveal],.reveal-item'),stuck=false;
+for(var i=0;i<n.length;i++){var e=n[i],r=e.getBoundingClientRect();
+if(r.bottom<0||r.top>innerHeight)continue;var s=getComputedStyle(e);
+if(s.opacity==='0'||s.visibility==='hidden'){stuck=true;break}}
+if(stuck){var t=document.createElement('style');
+t.textContent='[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}.reveal-item{visibility:visible!important}.reveal-mask{display:none!important}';
+document.head.appendChild(t);
+console.warn('[reveal] failsafe fired — content was stuck hidden')}
+}catch(err){}},6000)`,
+          }}
+        />
       </head>
       <body className="min-h-full">
-        <ClientShell>{children}</ClientShell>
+        {/* No 3D backdrop. This is a kiosk people open on their phone in a
+            shop: the decorative canvas buys nothing and costs a WebGL context
+            on every page, which is the most fragile thing in the tree on iOS.
+            If it fails to initialise it can take React down with it, and every
+            reveal target then stays at its hidden start state forever. */}
+        <ClientShell canvas3d={false}>{children}</ClientShell>
       </body>
     </html>
   );
