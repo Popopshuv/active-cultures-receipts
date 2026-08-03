@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTransitionStore } from "@/store/useTransitionStore";
 import { useCallback, type ReactNode, type MouseEvent } from "react";
 
@@ -15,7 +15,6 @@ export function TransitionLink({
   children,
   className,
 }: TransitionLinkProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const { phase, startTransition } = useTransitionStore();
 
@@ -23,12 +22,14 @@ export function TransitionLink({
     (e: MouseEvent) => {
       e.preventDefault();
 
-      // Don't transition if already transitioning or same page
+      // Don't transition if already transitioning or same page. The actual
+      // navigation is issued by TransitionController once the exit fade has
+      // played — routing here as well would race it.
       if (phase !== "idle" || pathname === href) return;
 
       startTransition(href);
     },
-    [href, pathname, phase, startTransition, router]
+    [href, pathname, phase, startTransition]
   );
 
   return (
