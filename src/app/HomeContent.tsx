@@ -130,7 +130,7 @@ export function HomeContent() {
               textTransform: "uppercase",
               color: "var(--red)",
               borderBottom: "1px solid var(--red)",
-              paddingBottom: "0.35rem",
+              paddingBottom: "0.15rem",
             }}
           >
             Connect Strava
