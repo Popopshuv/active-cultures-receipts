@@ -34,6 +34,7 @@ interface Envelope<T> {
 const SESSION_COOKIE = "ac_session";
 const STATE_COOKIE = "ac_oauth_state";
 const OPERATOR_COOKIE = "ac_operator";
+const MANUAL_COOKIE = "ac_manual";
 
 function base64url(input: Buffer | string): string {
   return Buffer.from(input)
@@ -139,4 +140,25 @@ export const operatorCookie = {
   seal: () => seal({ operator: true }, OPERATOR_TTL),
   read: (raw: string | undefined) =>
     unseal<{ operator: boolean }>(raw)?.operator === true,
+};
+
+/**
+ * Permission to print one hand-filled receipt.
+ *
+ * The no-Strava path has no OAuth round-trip to prove a human was involved, so
+ * this stands in for one: opening the form mints the cookie, printing spends
+ * it. It is not a hard authorisation — anyone can request one — but it means a
+ * script has to ask for a ticket before it can queue paper, and the short life
+ * keeps a stale tab from printing to a shop that closed hours ago.
+ *
+ * Fifteen minutes is enough to type four fields and pick photos, and short
+ * enough that a forgotten tab is dead by the time anyone finds it.
+ */
+export const MANUAL_TTL = 15 * 60;
+
+export const manualCookie = {
+  name: MANUAL_COOKIE,
+  options: () => cookieOptions(MANUAL_TTL),
+  seal: () => seal({ manual: true }, MANUAL_TTL),
+  read: (raw: string | undefined) => unseal<{ manual: boolean }>(raw)?.manual === true,
 };

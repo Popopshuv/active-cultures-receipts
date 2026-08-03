@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { RevealText } from "@/components/RevealText";
 import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
+import { TransitionLink } from "@/components/TransitionLink";
 
 /**
  * What a runner sees after scanning the QR code at the shop.
@@ -128,6 +129,29 @@ export function HomeContent() {
           >
             Connect Strava
           </a>
+        </Reveal>
+
+        {/* The secondary way in. Grey rather than red: the page gets one red
+            moment, and it belongs to the path most runners take. */}
+        <Reveal preset="fade" delay={0.9} triggerOnScroll={false}>
+          <div style={{ marginTop: "1.75rem" }}>
+            <TransitionLink href="/manual">
+              <span
+                className="transition-opacity hover:opacity-50"
+                style={{
+                  display: "inline-block",
+                  fontSize: "var(--text-sm)",
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: "var(--gray-3)",
+                  borderBottom: "1px solid var(--gray-2)",
+                  paddingBottom: "0.35rem",
+                }}
+              >
+                Don&rsquo;t have Strava
+              </span>
+            </TransitionLink>
+          </div>
         </Reveal>
 
         <Reveal
