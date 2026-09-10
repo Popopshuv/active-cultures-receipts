@@ -19,7 +19,17 @@ const ERRORS: Record<string, string> = {
   expired: "That took a little too long. Start again.",
   incomplete: "Strava sent us back without an authorisation. Try again.",
   exchange: "Strava wouldn't complete the handshake. Try again in a moment.",
+  full: "Strava only lets ten runners connect at a time, and it's full right now. Give it a minute, then tap connect to try again.",
+  busy: "Strava is getting a lot of requests right now. Give it a minute, then tap connect to try again.",
 };
+
+/**
+ * Shown in the same slot when there's no error. The athlete cap can also stop
+ * a runner on Strava's own page, where we can't explain anything — so the
+ * wait-and-retry advice has to be on screen before they leave.
+ */
+const CAP_NOTE =
+  "Strava lets ten runners connect at a time. If your runs don't come through, give it a minute and try again.";
 
 export function HomeContent() {
   const error = useSearchParams().get("error");
@@ -87,25 +97,23 @@ export function HomeContent() {
           photos. We&rsquo;ll print it on the receipt printer at the shop.
         </Reveal>
 
-        {message ? (
-          <Reveal
-            as="p"
-            preset="fade"
-            delay={0.7}
-            triggerOnScroll={false}
-            style={{
-              marginTop: "1.5rem",
-              fontSize: "var(--text-tiny)",
-              letterSpacing: "0.02em",
-              lineHeight: 1.6,
-              color: "var(--gray-3)",
-              borderTop: "1px solid var(--gray-1)",
-              paddingTop: "1rem",
-            }}
-          >
-            {message}
-          </Reveal>
-        ) : null}
+        <Reveal
+          as="p"
+          preset="fade"
+          delay={0.7}
+          triggerOnScroll={false}
+          style={{
+            marginTop: "1.5rem",
+            fontSize: "var(--text-tiny)",
+            letterSpacing: "0.02em",
+            lineHeight: 1.6,
+            color: "var(--gray-3)",
+            borderTop: "1px solid var(--gray-1)",
+            paddingTop: "1rem",
+          }}
+        >
+          {message ?? CAP_NOTE}
+        </Reveal>
       </div>
 
       {/* Sits under the copy rather than pinned to the bottom of the viewport.

@@ -21,6 +21,66 @@ interface RunSummary {
 /** Route thumbnails in the list, so runs are recognisable at a glance. */
 const THUMB = { width: 72, height: 44, stroke: 1.5, padding: 3 };
 
+/**
+ * What the runner reads when their runs don't arrive. Strava's own error text
+ * ("strava 403: {...}") means nothing to someone holding a phone in a shop.
+ */
+const MESSAGES = {
+  busy: "Strava is getting a lot of requests right now. Give it a minute, then try again.",
+  failed:
+    "We couldn't get your runs from Strava. It only lets ten runners connect at a time, so give it a minute and try again.",
+  empty:
+    "No runs came through from Strava. If you just finished, give it a minute to upload, then try again.",
+} as const;
+
+/**
+ * The way out of an empty or failed list. "Try again" goes back through
+ * Strava rather than refetching: it trades for fresh tokens, and a runner
+ * who's already approved is bounced straight back without the consent screen.
+ */
+function RetryActions() {
+  return (
+    <Reveal preset="fade-up" delay={0.1} triggerOnScroll={false}>
+      <div style={{ marginTop: "2rem" }}>
+        {/* Leaves the app for Strava, so a plain anchor. */}
+        <a
+          href="/api/strava/start"
+          className="transition-opacity hover:opacity-50"
+          style={{
+            display: "inline-block",
+            fontSize: "var(--text-sm)",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: "var(--red)",
+            borderBottom: "1px solid var(--red)",
+            paddingBottom: "0.15rem",
+          }}
+        >
+          Try again
+        </a>
+      </div>
+      <div style={{ marginTop: "1.75rem" }}>
+        <TransitionLink href="/manual">
+          <span
+            className="transition-opacity hover:opacity-50"
+            style={{
+              display: "inline-block",
+              fontSize: "var(--text-sm)",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "var(--gray-3)",
+              borderBottom: "1px solid var(--gray-2)",
+              paddingBottom: "0.35rem",
+            }}
+          >
+            Don&rsquo;t have Strava
+          </span>
+        </TransitionLink>
+      </div>
+    </Reveal>
+  );
+}
+
 export function RunsContent() {
   const router = useRouter();
   const [runs, setRuns] = useState<RunSummary[] | null>(null);
@@ -40,12 +100,12 @@ export function RunsContent() {
         const body = await response.json();
         if (cancelled) return;
         if (!response.ok || !body.ok) {
-          setError(body.error ?? "Couldn't reach Strava.");
+          setError(response.status === 429 ? MESSAGES.busy : MESSAGES.failed);
           return;
         }
         setRuns(body.activities as RunSummary[]);
       } catch {
-        if (!cancelled) setError("Couldn't reach Strava.");
+        if (!cancelled) setError(MESSAGES.failed);
       }
     })();
 
@@ -96,19 +156,22 @@ export function RunsContent() {
 
       <div style={{ marginTop: "clamp(2rem, 6vh, 4rem)", maxWidth: "34rem", width: "100%" }}>
         {error ? (
-          <Reveal
-            as="p"
-            preset="fade"
-            triggerOnScroll={false}
-            style={{
-              fontSize: "var(--text-tiny)",
-              letterSpacing: "0.02em",
-              color: "var(--gray-3)",
-              lineHeight: 1.6,
-            }}
-          >
-            {error}
-          </Reveal>
+          <>
+            <Reveal
+              as="p"
+              preset="fade"
+              triggerOnScroll={false}
+              style={{
+                fontSize: "var(--text-tiny)",
+                letterSpacing: "0.02em",
+                color: "var(--gray-3)",
+                lineHeight: 1.6,
+              }}
+            >
+              {error}
+            </Reveal>
+            <RetryActions />
+          </>
         ) : null}
 
         {!error && runs === null ? (
@@ -128,19 +191,22 @@ export function RunsContent() {
         ) : null}
 
         {runs?.length === 0 ? (
-          <Reveal
-            as="p"
-            preset="fade"
-            triggerOnScroll={false}
-            style={{
-              fontSize: "var(--text-tiny)",
-              letterSpacing: "0.02em",
-              color: "var(--gray-3)",
-              lineHeight: 1.6,
-            }}
-          >
-            No runs on your Strava yet. Finish one, upload it, then come back.
-          </Reveal>
+          <>
+            <Reveal
+              as="p"
+              preset="fade"
+              triggerOnScroll={false}
+              style={{
+                fontSize: "var(--text-tiny)",
+                letterSpacing: "0.02em",
+                color: "var(--gray-3)",
+                lineHeight: 1.6,
+              }}
+            >
+              {MESSAGES.empty}
+            </Reveal>
+            <RetryActions />
+          </>
         ) : null}
 
         {runs?.map((run, i) => {

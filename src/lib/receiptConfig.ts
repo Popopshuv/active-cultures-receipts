@@ -147,9 +147,10 @@ export const TONE = {
  * exactly these dimensions, and any mismatch resamples it, which would chew up
  * the halftone detail in the artwork.
  *
- * To swap it: trim the source to its ink bounding box so the art spans the
- * full content width, downscale to `CONTENT_WIDTH` with Lanczos, then apply a
- * hard threshold around 128 and update `height` to the result. Thresholding
+ * To swap it: trim the source to its ink bounding box, downscale with Lanczos
+ * to the target width (currently 85% of `CONTENT_WIDTH`, centred), then apply
+ * a hard threshold around 128 and update `width`/`height` to the result. To
+ * resize it, redo that from the art — never let satori scale it. Thresholding
  * beats dithering here; the art is already high-contrast — the current logo is
  * under 3% mid-greys before the cut — and error diffusion makes it print light.
  *
@@ -159,8 +160,8 @@ export const TONE = {
 export const MASTHEAD = {
   /** Path under the repo root. Read at render time and inlined as a data URI. */
   file: "public/receipt/masthead.png",
-  width: CONTENT_WIDTH,
-  height: 314,
+  width: 313,
+  height: 267,
 } as const;
 
 /** Shop details, printed at the foot of every receipt. */

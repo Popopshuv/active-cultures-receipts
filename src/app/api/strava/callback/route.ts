@@ -8,7 +8,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { sessionCookie, stateCookie } from "@/lib/session";
-import { exchangeCode } from "@/lib/strava";
+import { StravaError, exchangeCode } from "@/lib/strava";
 import { siteOrigin } from "@/lib/serverEnv";
 
 export const runtime = "nodejs";
@@ -43,6 +43,11 @@ export async function GET(request: NextRequest) {
     session = await exchangeCode(code);
   } catch (error) {
     console.error("[strava] code exchange failed", error);
+    // The connected-athlete cap arrives here as a 403 ("Limit of connected
+    // athletes exceeded"). It clears as earlier runners print and hand their
+    // authorisation back, so it gets its own wait-and-retry message.
+    if (error instanceof StravaError && error.status === 403) return fail("full");
+    if (error instanceof StravaError && error.status === 429) return fail("busy");
     return fail("exchange");
   }
 
