@@ -8,8 +8,8 @@ Two apps:
 ```
                    OAuth + pick a run              PNG over bearer-token POST
   runner's phone ───────────────────────►  web    ──────────────────────────►  pi-server/
-   (QR at shop)                          (Vercel)   https://printer.yourdomain    (Pi at the shop)
-                                                       via cloudflared
+   (QR at shop)                          (Vercel)   https://raspberrypi.…ts.net   (Pi at the shop)
+                                                    via Tailscale Funnel
 ```
 
 - **Web app** — this repo's root. Next.js 16 on Vercel. Runs the OAuth flow,
@@ -19,8 +19,8 @@ Two apps:
 Built on the Group Dynamics starter — design rules in
 [CLAUDE.md](./CLAUDE.md) and [GROUP-D-SYSTEM.md](./GROUP-D-SYSTEM.md).
 
-- **Setting up before a run?** [docs/QUICKSTART.md](./docs/QUICKSTART.md) — SSH
-  in, open the tunnel, redeploy, test print. The checklist.
+- **Setting up before a run?** [docs/QUICKSTART.md](./docs/QUICKSTART.md) —
+  plug in, check `/control`, test print. The checklist.
 - **Something's wrong with the Pi?** [docs/PI-RUNBOOK.md](./docs/PI-RUNBOOK.md)
   — real hostnames, real USB ids, calibration results, and the failure modes
   we've already hit.
@@ -204,32 +204,23 @@ sudo systemctl enable --now active-cultures-print
 journalctl -u active-cultures-print -f
 ```
 
-### Cloudflare Tunnel
+### Tailscale Funnel
 
-The Pi sits behind residential NAT; the web app is on the public internet. A
-tunnel bridges them with no port forwarding and no exposed home IP.
+The Pi sits behind whatever wifi it's on; the web app is on the public
+internet. Tailscale Funnel gives the Pi a permanent public HTTPS address with
+no port forwarding, no exposed IP, and no domain to buy — and the address stays
+the same when the Pi moves networks.
 
 ```bash
-curl -L https://pkg.cloudflare.com/install.sh | sudo bash
-sudo apt install -y cloudflared
-cloudflared tunnel login
-cloudflared tunnel create active-cultures
-cloudflared tunnel route dns active-cultures printer.yourdomain.com
-
-sudo tee /etc/cloudflared/config.yml >/dev/null <<'EOF'
-tunnel: active-cultures
-credentials-file: /home/pi/.cloudflared/<TUNNEL-UUID>.json
-ingress:
-  - hostname: printer.yourdomain.com
-    service: http://localhost:8000
-  - service: http_status:404
-EOF
-
-sudo cloudflared service install
-sudo systemctl enable --now cloudflared
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up --ssh
+sudo tailscale funnel --bg 8000
+tailscale funnel status          # prints https://<host>.<tailnet>.ts.net
 ```
 
-Then set `PRINTER_URL=https://printer.yourdomain.com` in the web app.
+Then set `PRINTER_URL` to that address in the web app. Details, and the
+gotchas (key expiry, DNS propagation), are in
+[docs/PI-RUNBOOK.md](./docs/PI-RUNBOOK.md#tailscale-funnel).
 
 ### The queue
 

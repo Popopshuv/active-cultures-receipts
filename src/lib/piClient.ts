@@ -1,7 +1,7 @@
 /**
  * Talking to the Pi.
  *
- * Every call is server-to-server over the Cloudflare Tunnel. No browser ever
+ * Every call is server-to-server over Tailscale Funnel. No browser ever
  * reaches the print server directly, which is what lets the shared token stay
  * a server secret instead of shipping in a client bundle.
  */
@@ -31,12 +31,29 @@ async function call(
     });
   } catch (error) {
     // A tunnel that's down, a Pi that's rebooting, DNS that hasn't caught up:
-    // all indistinguishable from here and all mean the same thing to the
-    // person holding the phone.
-    throw new PrinterOfflineError(
-      error instanceof Error ? error.message : "printer unreachable",
-    );
+    // all mean the same thing to the person holding the phone. They don't to
+    // whoever is debugging it, so the reason names the host and the cause.
+    throw new PrinterOfflineError(`${printerHost()}: ${describe(error)}`);
   }
+}
+
+function printerHost(): string {
+  try {
+    return new URL(printer.baseUrl).host;
+  } catch {
+    return `unparseable PRINTER_URL "${printer.baseUrl}"`;
+  }
+}
+
+/**
+ * Node's fetch reports every network failure as a bare "fetch failed"; the
+ * useful part — ENOTFOUND, ECONNREFUSED, ENETUNREACH — is on `cause`.
+ */
+function describe(error: unknown): string {
+  if (!(error instanceof Error)) return "printer unreachable";
+  const cause = error.cause as { code?: string; message?: string } | undefined;
+  const detail = cause?.code ?? cause?.message;
+  return detail ? `${error.message} (${detail})` : error.message;
 }
 
 export interface PrinterHealth {
