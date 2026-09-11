@@ -118,6 +118,12 @@ export const ROUTE = {
 /** Photos are dithered to exactly this width and placed 1:1. Never resampled. */
 export const PHOTO_WIDTH = CONTENT_WIDTH;
 
+/**
+ * Longest runner name the receipt takes. Keeps it to one line under the date;
+ * the no-Strava form caps its input here and the server truncates to it.
+ */
+export const ATHLETE_MAX = 32;
+
 /** Hard cap on runner-supplied photos. */
 export const MAX_RUNNER_PHOTOS = 3;
 

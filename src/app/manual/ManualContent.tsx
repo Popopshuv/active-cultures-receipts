@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PhotoStrip } from "@/components/receipt/PhotoStrip";
 import { ReceiptPreview } from "@/components/receipt/ReceiptPreview";
 import { EMPTY_RUN, buildManualReceipt, type ManualRun } from "@/lib/manualReceipt";
+import { ATHLETE_MAX } from "@/lib/receiptConfig";
 import { PRINTED_RESET_MS, PRINT_STYLE, LABEL_STYLE } from "@/lib/receiptScreen";
 import { usePhotoPicker } from "@/lib/usePhotoPicker";
 import { useReceiptPreview } from "@/lib/useReceiptPreview";
@@ -45,9 +46,17 @@ interface FieldProps {
   onChange: (value: string) => void;
   type?: string;
   inputMode?: "text" | "decimal" | "numeric";
+  maxLength?: number;
 }
 
-function Field({ label, value, onChange, type = "text", inputMode }: FieldProps) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  inputMode,
+  maxLength,
+}: FieldProps) {
   return (
     <label style={{ display: "block" }}>
       <span style={{ ...LABEL_STYLE, display: "block", marginBottom: "0.4rem" }}>
@@ -56,6 +65,7 @@ function Field({ label, value, onChange, type = "text", inputMode }: FieldProps)
       <input
         type={type}
         inputMode={inputMode}
+        maxLength={maxLength}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         style={FIELD_STYLE}
@@ -94,7 +104,7 @@ export function ManualContent() {
     picker.sources,
     // The form is part of the signature: typing a new distance has to redraw
     // the receipt, not just a new photo selection.
-    `${picker.signature}|${run.title}|${run.miles}|${run.duration}|${run.startedAt}`,
+    `${picker.signature}|${run.title}|${run.name}|${run.miles}|${run.duration}|${run.startedAt}`,
   );
 
   // Ask for permission to print before the runner has filled anything in, so
@@ -244,7 +254,13 @@ export function ManualContent() {
                 onChange={set("duration")}
                 inputMode="text"
               />
-              <Field label="Name" value={run.title} onChange={set("title")} />
+              <Field label="Title" value={run.title} onChange={set("title")} />
+              <Field
+                label="Name"
+                value={run.name}
+                onChange={set("name")}
+                maxLength={ATHLETE_MAX}
+              />
               <Field
                 label="When"
                 value={run.startedAt}

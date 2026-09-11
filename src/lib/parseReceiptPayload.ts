@@ -12,14 +12,13 @@
  * thing the photo pipeline ever produces anyway.
  */
 
-import { MAX_RUNNER_PHOTOS, PHOTO_WIDTH } from "./receiptConfig";
+import { ATHLETE_MAX, MAX_RUNNER_PHOTOS, PHOTO_WIDTH } from "./receiptConfig";
 import type { ReceiptPayload, ReceiptPhoto, ReceiptStat } from "./receiptPayload";
 
 /** Belt and braces against a payload that tries to exhaust memory. */
 const LIMITS = {
   text: 120,
-  /** One line under the signature — longer would wrap into the footer. */
-  athlete: 32,
+  athlete: ATHLETE_MAX,
   stats: 12,
   footerLines: 6,
   /** Roughly 1MB of base64 per photo — far above a real 1-bit 368px PNG. */

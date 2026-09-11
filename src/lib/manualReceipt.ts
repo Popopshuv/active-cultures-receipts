@@ -27,6 +27,8 @@ const METRES_PER_MILE = 1609.344;
 export interface ManualRun {
   /** Activity name. Blank falls back to the time of day. */
   title: string;
+  /** The runner's name, printed under the date. Blank prints nothing. */
+  name: string;
   /** Distance in miles, as typed. */
   miles: string;
   /** `h:mm:ss`, `mm:ss`, or a bare number of minutes. */
@@ -38,6 +40,7 @@ export interface ManualRun {
 /** An empty form. Exported so the page and the defaults can't disagree. */
 export const EMPTY_RUN: ManualRun = {
   title: "",
+  name: "",
   miles: "",
   duration: "",
   startedAt: "",
@@ -159,6 +162,7 @@ export function buildManualReceipt(
 
   return {
     title: run.title.trim() || titleFor(started),
+    athlete: run.name.trim() || undefined,
     // No place line. Strava's location fields come back empty in practice, so
     // a Strava receipt never prints one — and this one shouldn't either.
     dateLine: dateLineFor(started),
