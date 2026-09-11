@@ -345,16 +345,22 @@ export function ReceiptDoc({
           width: CONTENT_WIDTH,
         }}
       >
-        {(payload.footerLines ?? []).map((line) => (
-          <Line
-            key={line}
-            size={TYPE.footer}
-            lineHeight={LINE_H.footer}
-            tracking={TRACKING.label}
-          >
-            {line}
-          </Line>
-        ))}
+        {(payload.footerLines ?? []).map((line, i) =>
+          // A blank line is spacing. Satori collapses an empty text box to
+          // nothing, so it gets an explicit height instead.
+          line ? (
+            <Line
+              key={i}
+              size={TYPE.footer}
+              lineHeight={LINE_H.footer}
+              tracking={TRACKING.label}
+            >
+              {line}
+            </Line>
+          ) : (
+            <div key={i} style={{ display: "flex", height: LINE_H.footer }} />
+          ),
+        )}
       </div>
 
       {/* Stamp */}
@@ -364,7 +370,7 @@ export function ReceiptDoc({
           flexDirection: "row",
           justifyContent: "space-between",
           width: CONTENT_WIDTH,
-          marginTop: GAP.section,
+          marginTop: GAP.stamp,
           fontSize: TYPE.stamp,
           lineHeight: `${LINE_H.stamp}px`,
           letterSpacing: TRACKING.body,

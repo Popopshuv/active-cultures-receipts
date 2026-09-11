@@ -75,13 +75,10 @@ export function startedAt(startDateLocal: string): string {
   return `${day} at ${time}`;
 }
 
-/** Timestamp for the receipt's stamp line. */
+/** Date for the receipt's stamp line, e.g. `2026-09-11`. Date only, no time. */
 export function stampFor(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-    `${pad(date.getHours())}:${pad(date.getMinutes())}`
-  );
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 /**

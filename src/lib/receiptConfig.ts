@@ -99,13 +99,10 @@ export const GAP = {
   rule: 12,
   /** Between major blocks. */
   section: 16,
-  /**
-   * Between the stamp and the studio credit under it. Still under `section`
-   * — the credit belongs to the ticket block, not to the shop's address above
-   * it — but with enough air that it doesn't read as crowded against the
-   * stamp now both are set larger.
-   */
-  credit: 12,
+  /** Between the last footer line and the ticket/stamp line. */
+  stamp: 32,
+  /** Between the ticket/stamp line and the studio credit under it. */
+  credit: 32,
 };
 
 /** Blank dot-rows fed after the receipt so it clears the tear bar. */
@@ -222,8 +219,12 @@ export const EVENT: ReceiptEvent | null = {
   footerLines: [
     "ACTIVE CULTURES & DIVER",
     "9TH ALLEY",
-    "900 E 900 S ISH",
+    "900E 900S ISH",
     "SLC, UT",
+    // Blank lines print as empty space — see footerLines on ReceiptPayload.
+    "",
+    "",
+    "",
     "THANK YOU FOR SUPPORTING.",
   ],
   defaultTitle: "Beer Run",

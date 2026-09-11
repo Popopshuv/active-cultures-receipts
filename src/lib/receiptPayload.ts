@@ -55,7 +55,7 @@ export interface ReceiptPayload {
   athlete?: string;
   /** Dithered photos, in print order. */
   photos: ReceiptPhoto[];
-  /** Extra closing lines above the stamp. */
+  /** Extra closing lines above the stamp. An empty string prints a blank line. */
   footerLines?: readonly string[];
   /** Reported recording device — decides whether Garmin attribution prints. */
   deviceName?: string | null;
