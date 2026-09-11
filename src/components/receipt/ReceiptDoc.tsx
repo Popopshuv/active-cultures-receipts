@@ -343,6 +343,7 @@ export function ReceiptDoc({
           display: "flex",
           flexDirection: "column",
           width: CONTENT_WIDTH,
+          marginTop: GAP.footer,
         }}
       >
         {(payload.footerLines ?? []).map((line, i) =>
@@ -370,7 +371,6 @@ export function ReceiptDoc({
           flexDirection: "row",
           justifyContent: "space-between",
           width: CONTENT_WIDTH,
-          marginTop: GAP.stamp,
           fontSize: TYPE.stamp,
           lineHeight: `${LINE_H.stamp}px`,
           letterSpacing: TRACKING.body,

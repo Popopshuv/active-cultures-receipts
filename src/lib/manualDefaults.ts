@@ -18,15 +18,18 @@
  * A string, not a number, because it prints verbatim — "3.10" and "3.1" are
  * different receipts, and the two-decimal form is what the Strava path emits.
  */
-export const DEFAULT_MILES = "3.10";
+export const DEFAULT_MILES = "1.00";
 
 /**
  * Duration used when the runner leaves it blank.
  *
  * Read by the same parser as typed input, so `h:mm:ss`, `mm:ss` and a bare
  * number of minutes all work here too.
+ *
+ * The mile world record — Hicham El Guerrouj's 3:43.13, Rome, 1999 — so a
+ * blank form prints the fastest mile ever run. The parser takes whole seconds.
  */
-export const DEFAULT_DURATION = "30:00";
+export const DEFAULT_DURATION = "3:43";
 
 /**
  * When the run started, on the receipt's date line.

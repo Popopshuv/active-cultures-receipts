@@ -108,8 +108,8 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   // Shop details, stamp, studio credit.
   h += RULE_BLOCK;
   const footerCount = payload.footerLines?.length ?? 0;
+  h += GAP.footer;
   h += footerCount * LINE_H.footer;
-  h += GAP.stamp;
   h += LINE_H.stamp;
   // The credit prints unconditionally, below the stamp.
   h += GAP.credit + LINE_H.credit;

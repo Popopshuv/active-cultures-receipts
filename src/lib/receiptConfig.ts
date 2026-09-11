@@ -99,8 +99,11 @@ export const GAP = {
   rule: 12,
   /** Between major blocks. */
   section: 16,
-  /** Between the last footer line and the ticket/stamp line. */
-  stamp: 32,
+  /**
+   * Extra air between the rule and the first footer line, on top of the
+   * rule's own. Brings it to roughly two blank footer lines.
+   */
+  footer: 20,
   /** Between the ticket/stamp line and the studio credit under it. */
   credit: 32,
 };
@@ -185,11 +188,15 @@ export const MASTHEAD: Masthead = {
   height: 267,
 };
 
-/** Shop details, printed at the foot of every receipt. */
+/**
+ * Shop details, printed at the foot of every receipt. The ticket/stamp line
+ * follows the last line directly, so any space before it is a blank line here.
+ */
 export const FOOTER_LINES: readonly string[] = [
   "ACTIVE CULTURES",
   "925 E 900 S",
   "SLC, UT",
+  "",
 ];
 
 /** A temporary co-branded receipt. See `EVENT`. */
@@ -222,7 +229,6 @@ export const EVENT: ReceiptEvent | null = {
     "900E 900S ISH",
     "SLC, UT",
     // Blank lines print as empty space — see footerLines on ReceiptPayload.
-    "",
     "",
     "",
     "THANK YOU FOR SUPPORTING.",
