@@ -161,8 +161,7 @@ export function buildManualReceipt(
     },
     stats,
     total: { label: LABELS.total, value: distance },
-    // No GPS track. The route signature still prints, left blank above its
-    // line so the runner can draw the route in with a pen.
+    // No GPS track. The route signature prints a stand-in squiggle instead.
     polyline: null,
     photos,
     footerLines: CURRENT_FOOTER_LINES,

@@ -170,6 +170,28 @@ export function routeToDataUri(
 }
 
 /**
+ * The route signature for a receipt with no GPS track: a roughly vertical
+ * line with a hand-drawn wobble, like a pen stroke signed down the page.
+ *
+ * Built as a track and drawn by `routeToDataUri`, so it gets the same fit,
+ * stroke and centring as a real route. Deterministic — fixed sine terms, no
+ * `Math.random` — so the preview and the print draw the identical line.
+ */
+export function squiggleDataUri(options: RouteSvgOptions): string | null {
+  const steps = 160;
+  const points: LatLng[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    // Two out-of-phase waves keep it reading as drawn rather than plotted.
+    const wobble =
+      0.07 * Math.sin(t * Math.PI * 7) + 0.025 * Math.sin(t * Math.PI * 17 + 0.8);
+    // Latitude falls as t rises, which the projection turns into "downward".
+    points.push({ lat: -t, lng: wobble });
+  }
+  return routeToDataUri(points, options);
+}
+
+/**
  * Convenience: encoded polyline straight to a data URI, or null.
  */
 export function polylineToDataUri(

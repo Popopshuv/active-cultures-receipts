@@ -40,7 +40,7 @@ import {
   ATTRIBUTION,
 } from "@/lib/receiptConfig";
 import type { ReceiptPayload, ReceiptStat } from "@/lib/receiptPayload";
-import { polylineToDataUri } from "@/lib/polyline";
+import { polylineToDataUri, squiggleDataUri } from "@/lib/polyline";
 
 /** Horizontal rule with its own air above and below. */
 function Rule() {
@@ -159,12 +159,16 @@ export function ReceiptDoc({
    */
   mastheadSrc?: string;
 }) {
-  const routeSrc = polylineToDataUri(payload.polyline, {
+  const routeBox = {
     width: ROUTE.width,
     height: ROUTE.height,
     stroke: ROUTE.stroke,
     padding: ROUTE.padding,
-  });
+  };
+  // No GPS track (the no-Strava form, a treadmill run) gets a stand-in
+  // signature rather than an empty box.
+  const routeSrc =
+    polylineToDataUri(payload.polyline, routeBox) ?? squiggleDataUri(routeBox);
 
   return (
     <div
@@ -295,8 +299,8 @@ export function ReceiptDoc({
       {/* Route signature — the run itself, drawn as one line.
 
           Every receipt gets one. With no GPS track (the no-Strava form, a
-          treadmill run) the space is left blank at full size, for the runner
-          to draw their route in by hand. */}
+          treadmill run) it's a vertical squiggle instead — see
+          `squiggleDataUri`. */}
       <Block align="center">
         <Rule />
         <Line

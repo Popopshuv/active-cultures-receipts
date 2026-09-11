@@ -26,10 +26,11 @@ export const DEFAULT_MILES = "1.00";
  * Read by the same parser as typed input, so `h:mm:ss`, `mm:ss` and a bare
  * number of minutes all work here too.
  *
- * The mile world record — Hicham El Guerrouj's 3:43.13, Rome, 1999 — so a
- * blank form prints the fastest mile ever run. The parser takes whole seconds.
+ * One second under the mile world record — Hicham El Guerrouj's 3:43.13,
+ * Rome, 1999 — so a blank form prints a runner beating the fastest mile ever
+ * run. The parser takes whole seconds.
  */
-export const DEFAULT_DURATION = "3:43";
+export const DEFAULT_DURATION = "3:42";
 
 /**
  * When the run started, on the receipt's date line.
