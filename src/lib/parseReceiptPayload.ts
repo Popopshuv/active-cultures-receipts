@@ -20,8 +20,11 @@ const LIMITS = {
   text: 120,
   athlete: ATHLETE_MAX,
   stats: 12,
-  /** Blank spacer lines count, so there's headroom over the event footer's 8. */
-  footerLines: 12,
+  /**
+   * Blank spacer lines count too. Past this, lines are silently dropped, so
+   * keep it well above the longest footer in receiptConfig.
+   */
+  footerLines: 24,
   /** Roughly 1MB of base64 per photo — far above a real 1-bit 368px PNG. */
   photoBytes: 1_000_000,
   polyline: 100_000,

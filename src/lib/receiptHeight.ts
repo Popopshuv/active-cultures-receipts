@@ -24,6 +24,7 @@ import {
   LINE_H,
   CURRENT_MASTHEAD,
   ROUTE,
+  TRANSACTION,
   TYPE,
   TRACKING,
 } from "./receiptConfig";
@@ -110,7 +111,7 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   const footerCount = payload.footerLines?.length ?? 0;
   h += GAP.footer;
   h += footerCount * LINE_H.footer;
-  h += LINE_H.stamp;
+  h += TRANSACTION.lines * LINE_H.stamp;
   // The credit prints unconditionally, below the stamp.
   h += GAP.credit + LINE_H.credit;
 

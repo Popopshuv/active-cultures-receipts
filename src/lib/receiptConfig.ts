@@ -63,7 +63,7 @@ export const TYPE = {
    */
   footer: 13,
   stamp: 13,
-  credit: 11,
+  credit: 10,
 } as const;
 
 /**
@@ -79,7 +79,7 @@ export const LINE_H: Record<keyof typeof TYPE, number> = {
   nano: 12,
   footer: 16,
   stamp: 16,
-  credit: 13,
+  credit: 12,
 };
 
 /** Letter-spacing, in em, mirroring the site's tracking ladder. */
@@ -125,6 +125,18 @@ export const ROUTE = {
   height: 200,
   stroke: 2,
   padding: 6,
+} as const;
+
+/**
+ * The transaction record under the footer — ticket and date, plus trace and
+ * invoice numbers that are decorative but stable (see `transactionNumbers`).
+ */
+export const TRANSACTION = {
+  heading: "** TRANSACTION RECORD **",
+  traceDigits: 6,
+  invoiceDigits: 10,
+  /** Lines it prints: heading, tran/date, trace, invoice. */
+  lines: 4,
 } as const;
 
 /** Photos are dithered to exactly this width and placed 1:1. Never resampled. */
@@ -231,7 +243,12 @@ export const EVENT: ReceiptEvent | null = {
     // Blank lines print as empty space — see footerLines on ReceiptPayload.
     "",
     "",
+    // Store-receipt fine print, played straight. Footer lines don't wrap, so
+    // keep each under ~36 characters.
+    "CUSTOMER COPY",
+    "PLEASE RETAIN FOR YOUR RECORDS",
     "THANK YOU FOR SUPPORTING.",
+    "",
   ],
   defaultTitle: "Beer Run",
   masthead: {

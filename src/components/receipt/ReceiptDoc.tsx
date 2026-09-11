@@ -38,6 +38,7 @@ import {
   TRACKING,
   TYPE,
   ATTRIBUTION,
+  TRANSACTION,
 } from "@/lib/receiptConfig";
 import type { ReceiptPayload, ReceiptStat } from "@/lib/receiptPayload";
 import { polylineToDataUri, squiggleDataUri } from "@/lib/polyline";
@@ -148,6 +149,46 @@ function Line({
   );
 }
 
+/**
+ * Trace and invoice numbers for the transaction record.
+ *
+ * Decorative, but not random: they're hashed from the payload, so the preview
+ * and the print — two renders of the same payload — show the same numbers.
+ * FNV-1a over the fields that make a receipt distinct, then a xorshift to
+ * draw as many digits as needed.
+ */
+function transactionNumbers(payload: ReceiptPayload): {
+  trace: string;
+  invoice: string;
+} {
+  const seed = [payload.ticket, payload.stamp, payload.title, payload.hero?.value]
+    .filter(Boolean)
+    .join("|");
+
+  let h = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+
+  const digits = (count: number) => {
+    let out = "";
+    for (let i = 0; i < count; i++) {
+      h ^= h << 13;
+      h ^= h >>> 17;
+      h ^= h << 5;
+      h >>>= 0;
+      out += String(h % 10);
+    }
+    return out;
+  };
+
+  return {
+    trace: digits(TRANSACTION.traceDigits),
+    invoice: digits(TRANSACTION.invoiceDigits),
+  };
+}
+
 export function ReceiptDoc({
   payload,
   mastheadSrc,
@@ -169,6 +210,7 @@ export function ReceiptDoc({
   // signature rather than an empty box.
   const routeSrc =
     polylineToDataUri(payload.polyline, routeBox) ?? squiggleDataUri(routeBox);
+  const transaction = transactionNumbers(payload);
 
   return (
     <div
@@ -368,20 +410,35 @@ export function ReceiptDoc({
         )}
       </div>
 
-      {/* Stamp */}
+      {/* Transaction record — the ticket and date, dressed as a card slip's
+          tran/trace/invoice block. */}
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
+          flexDirection: "column",
           width: CONTENT_WIDTH,
           fontSize: TYPE.stamp,
           lineHeight: `${LINE_H.stamp}px`,
           letterSpacing: TRACKING.body,
         }}
       >
-        <div style={{ display: "flex" }}>{payload.ticket}</div>
-        <div style={{ display: "flex" }}>{payload.stamp}</div>
+        <div style={{ display: "flex" }}>{TRANSACTION.heading}</div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex" }}>
+            {`TRAN. #: ${payload.ticket.replace(/^#/, "")}`}
+          </div>
+          <div style={{ display: "flex" }}>{payload.stamp}</div>
+        </div>
+        <div style={{ display: "flex" }}>{`TRACE #: ${transaction.trace}`}</div>
+        <div style={{ display: "flex" }}>
+          {`INVOICE #: ${transaction.invoice}`}
+        </div>
       </div>
 
       {/* Studio credit. Below the stamp and a size down from it, so it reads as
