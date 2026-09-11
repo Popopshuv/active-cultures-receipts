@@ -63,7 +63,7 @@ export const TYPE = {
    */
   footer: 13,
   stamp: 13,
-  credit: 12,
+  credit: 11,
 } as const;
 
 /**
@@ -79,7 +79,7 @@ export const LINE_H: Record<keyof typeof TYPE, number> = {
   nano: 12,
   footer: 16,
   stamp: 16,
-  credit: 14,
+  credit: 13,
 };
 
 /** Letter-spacing, in em, mirroring the site's tracking ladder. */
@@ -100,11 +100,12 @@ export const GAP = {
   /** Between major blocks. */
   section: 16,
   /**
-   * Between the stamp and the studio credit under it. Deliberately much
-   * smaller than `section` — the credit belongs to the ticket block, not to
-   * the shop's address above it, and the spacing is what says so.
+   * Between the stamp and the studio credit under it. Still under `section`
+   * — the credit belongs to the ticket block, not to the shop's address above
+   * it — but with enough air that it doesn't read as crowded against the
+   * stamp now both are set larger.
    */
-  credit: 6,
+  credit: 12,
 };
 
 /** Blank dot-rows fed after the receipt so it clears the tear bar. */
@@ -218,7 +219,13 @@ export interface ReceiptEvent {
  * back a one-line change: set this to `null` and redeploy.
  */
 export const EVENT: ReceiptEvent | null = {
-  footerLines: ["ACTIVE CULTURES & DIVER", "925 E 900 S", "SLC, UT"],
+  footerLines: [
+    "ACTIVE CULTURES & DIVER",
+    "9TH ALLEY",
+    "900 E 900 S ISH",
+    "SLC, UT",
+    "THANK YOU FOR SUPPORTING.",
+  ],
   defaultTitle: "Beer Run",
   masthead: {
     file: "public/receipt/masthead-diver.png",
