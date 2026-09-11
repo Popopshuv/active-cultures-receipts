@@ -25,7 +25,7 @@
  */
 
 import {
-  MASTHEAD,
+  CURRENT_MASTHEAD,
   CONTENT_WIDTH,
   GAP,
   HEAD_DOTS,
@@ -187,8 +187,8 @@ export function ReceiptDoc({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={mastheadSrc}
-            width={MASTHEAD.width}
-            height={MASTHEAD.height}
+            width={CURRENT_MASTHEAD.width}
+            height={CURRENT_MASTHEAD.height}
             alt=""
           />
         </Block>
@@ -239,7 +239,7 @@ export function ReceiptDoc({
         {payload.hero ? (
           <Block>
             <Row
-              label="COUNT TYPE"
+              label="TYPE"
               value={payload.hero.label}
               size={TYPE.label}
               lineHeight={LINE_H.label}
@@ -348,8 +348,8 @@ export function ReceiptDoc({
         {(payload.footerLines ?? []).map((line) => (
           <Line
             key={line}
-            size={TYPE.label}
-            lineHeight={LINE_H.label}
+            size={TYPE.footer}
+            lineHeight={LINE_H.footer}
             tracking={TRACKING.label}
           >
             {line}
@@ -365,7 +365,8 @@ export function ReceiptDoc({
           justifyContent: "space-between",
           width: CONTENT_WIDTH,
           marginTop: GAP.section,
-          fontSize: TYPE.micro,
+          fontSize: TYPE.stamp,
+          lineHeight: `${LINE_H.stamp}px`,
           letterSpacing: TRACKING.body,
         }}
       >
@@ -379,8 +380,8 @@ export function ReceiptDoc({
         style={{ display: "flex", width: CONTENT_WIDTH, marginTop: GAP.credit }}
       >
         <Line
-          size={TYPE.nano}
-          lineHeight={LINE_H.nano}
+          size={TYPE.credit}
+          lineHeight={LINE_H.credit}
           tracking={TRACKING.micro}
         >
           {ATTRIBUTION.builtBy}

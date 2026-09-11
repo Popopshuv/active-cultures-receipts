@@ -14,10 +14,11 @@
 import {
   DEFAULT_DURATION,
   DEFAULT_MILES,
+  DEFAULT_START,
   LABELS,
   titleFor,
 } from "./manualDefaults";
-import { FOOTER_LINES } from "./receiptConfig";
+import { CURRENT_FOOTER_LINES, EVENT_DEFAULT_TITLE } from "./receiptConfig";
 import { duration as formatDuration, pace, stampFor } from "./runFormat";
 import type { ReceiptPayload, ReceiptPhoto, ReceiptStat } from "./receiptPayload";
 
@@ -33,8 +34,6 @@ export interface ManualRun {
   miles: string;
   /** `h:mm:ss`, `mm:ss`, or a bare number of minutes. */
   duration: string;
-  /** `YYYY-MM-DDTHH:mm` from a datetime-local input. Blank means now. */
-  startedAt: string;
 }
 
 /** An empty form. Exported so the page and the defaults can't disagree. */
@@ -43,7 +42,6 @@ export const EMPTY_RUN: ManualRun = {
   name: "",
   miles: "",
   duration: "",
-  startedAt: "",
 };
 
 /**
@@ -90,7 +88,7 @@ export function parseDuration(input: string): number | null {
  * Long-form date line, e.g. `SUNDAY, AUGUST 3, 2026 AT 7:04 PM`.
  *
  * Unlike the Strava path this reads the phone's own zone, which is correct
- * here: the runner is typing a local wall-clock time into a local device.
+ * here: it's the phone's own clock, read in the shop.
  */
 function dateLineFor(date: Date): string {
   const day = new Intl.DateTimeFormat("en-US", {
@@ -104,19 +102,6 @@ function dateLineFor(date: Date): string {
     minute: "2-digit",
   }).format(date);
   return `${day} at ${time}`;
-}
-
-/**
- * When the run happened.
- *
- * A `datetime-local` value has no zone, so `new Date()` reads it in the
- * phone's — which is what the runner meant. Anything unparseable falls back to
- * `now` rather than printing an Invalid Date.
- */
-function startedAtFor(input: string, now: Date): Date {
-  if (!input) return now;
-  const parsed = new Date(input);
-  return Number.isNaN(parsed.getTime()) ? now : parsed;
 }
 
 export interface BuildManualOptions {
@@ -139,7 +124,10 @@ export function buildManualReceipt(
   run: ManualRun,
   { photos = [], now = new Date(), ticket }: BuildManualOptions,
 ): ReceiptPayload {
-  const started = startedAtFor(run.startedAt, now);
+  // Today, at the club's start time — see DEFAULT_START. Derived from `now`
+  // rather than a fresh clock read, so the preview and the print agree.
+  const started = new Date(now);
+  started.setHours(DEFAULT_START.hour, DEFAULT_START.minute, 0, 0);
 
   // A blank field means "use the default", and the defaults go through exactly
   // the same parsing as typed input — so a bad default shows up as a wrong
@@ -161,7 +149,7 @@ export function buildManualReceipt(
   });
 
   return {
-    title: run.title.trim() || titleFor(started),
+    title: run.title.trim() || EVENT_DEFAULT_TITLE || titleFor(started),
     athlete: run.name.trim() || undefined,
     // No place line. Strava's location fields come back empty in practice, so
     // a Strava receipt never prints one — and this one shouldn't either.
@@ -177,7 +165,7 @@ export function buildManualReceipt(
     // line so the runner can draw the route in with a pen.
     polyline: null,
     photos,
-    footerLines: FOOTER_LINES,
+    footerLines: CURRENT_FOOTER_LINES,
     deviceName: null,
     ticket,
     stamp: stampFor(now),

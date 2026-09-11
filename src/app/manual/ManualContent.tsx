@@ -104,7 +104,7 @@ export function ManualContent() {
     picker.sources,
     // The form is part of the signature: typing a new distance has to redraw
     // the receipt, not just a new photo selection.
-    `${picker.signature}|${run.title}|${run.name}|${run.miles}|${run.duration}|${run.startedAt}`,
+    `${picker.signature}|${run.title}|${run.name}|${run.miles}|${run.duration}`,
   );
 
   // Ask for permission to print before the runner has filled anything in, so
@@ -260,12 +260,6 @@ export function ManualContent() {
                 value={run.name}
                 onChange={set("name")}
                 maxLength={ATHLETE_MAX}
-              />
-              <Field
-                label="When"
-                value={run.startedAt}
-                onChange={set("startedAt")}
-                type="datetime-local"
               />
             </div>
           </Reveal>

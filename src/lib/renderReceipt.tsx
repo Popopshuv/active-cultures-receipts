@@ -10,7 +10,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ReceiptDoc } from "@/components/receipt/ReceiptDoc";
-import { HEAD_DOTS, MASTHEAD } from "./receiptConfig";
+import { CURRENT_MASTHEAD, HEAD_DOTS } from "./receiptConfig";
 import { estimateReceiptHeight } from "./receiptHeight";
 import type { ReceiptPayload } from "./receiptPayload";
 
@@ -53,10 +53,10 @@ function loadFont(): Promise<ArrayBuffer | undefined> {
 let mastheadPromise: Promise<string | undefined> | undefined;
 
 function loadMasthead(): Promise<string | undefined> {
-  mastheadPromise ??= readFile(join(process.cwd(), MASTHEAD.file))
+  mastheadPromise ??= readFile(join(process.cwd(), CURRENT_MASTHEAD.file))
     .then((buf) => `data:image/png;base64,${buf.toString("base64")}`)
     .catch(() => {
-      console.warn(`[receipt] masthead missing at ${MASTHEAD.file}`);
+      console.warn(`[receipt] masthead missing at ${CURRENT_MASTHEAD.file}`);
       return undefined;
     });
   return mastheadPromise;

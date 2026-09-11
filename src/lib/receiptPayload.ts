@@ -38,7 +38,7 @@ export interface ReceiptPayload {
   dateLine?: string;
   /** The headline figure — distance, in the reference layout. */
   hero?: {
-    /** Column heading above the figure, e.g. "NO. MILES". */
+    /** Column heading above the figure, e.g. "STATS". */
     label: string;
     /** Row heading, e.g. "1 RUN". */
     rowLabel: string;

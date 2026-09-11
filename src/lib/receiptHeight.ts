@@ -22,7 +22,7 @@ import {
   CONTENT_WIDTH,
   GAP,
   LINE_H,
-  MASTHEAD,
+  CURRENT_MASTHEAD,
   ROUTE,
   TYPE,
   TRACKING,
@@ -69,7 +69,7 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   let h = 0;
 
   // Masthead artwork.
-  h += MASTHEAD.height;
+  h += CURRENT_MASTHEAD.height;
   h += GAP.section;
 
   // Title block.
@@ -108,11 +108,11 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   // Shop details, stamp, studio credit.
   h += RULE_BLOCK;
   const footerCount = payload.footerLines?.length ?? 0;
-  h += footerCount * LINE_H.label;
+  h += footerCount * LINE_H.footer;
   h += GAP.section;
-  h += LINE_H.micro;
+  h += LINE_H.stamp;
   // The credit prints unconditionally, below the stamp.
-  h += GAP.credit + LINE_H.nano;
+  h += GAP.credit + LINE_H.credit;
 
   // Slack, then the vertical padding the document itself adds.
   return Math.max(400, Math.ceil(h * 1.15) + 48);

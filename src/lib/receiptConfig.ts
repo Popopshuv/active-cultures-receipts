@@ -56,6 +56,14 @@ export const TYPE = {
    * the 1-bit threshold and the line prints as a grey smear.
    */
   nano: 8,
+  /**
+   * The foot of the receipt — shop details, ticket/stamp line, studio credit.
+   * Kept separate from label/micro/nano so the foot can read at arm's length
+   * without growing the date line and labels up top.
+   */
+  footer: 13,
+  stamp: 13,
+  credit: 12,
 } as const;
 
 /**
@@ -69,6 +77,9 @@ export const LINE_H: Record<keyof typeof TYPE, number> = {
   label: 16,
   micro: 14,
   nano: 12,
+  footer: 16,
+  stamp: 16,
+  credit: 14,
 };
 
 /** Letter-spacing, in em, mirroring the site's tracking ladder. */
@@ -163,19 +174,68 @@ export const TONE = {
  * Flatten any alpha onto white first. A transparent background carried into a
  * greyscale conversion reads as black and prints as a solid slab.
  */
-export const MASTHEAD = {
+export interface Masthead {
   /** Path under the repo root. Read at render time and inlined as a data URI. */
+  file: string;
+  width: number;
+  height: number;
+}
+
+export const MASTHEAD: Masthead = {
   file: "public/receipt/masthead.png",
   width: 313,
   height: 267,
-} as const;
+};
 
 /** Shop details, printed at the foot of every receipt. */
-export const FOOTER_LINES = [
+export const FOOTER_LINES: readonly string[] = [
   "ACTIVE CULTURES",
   "925 E 900 S",
   "SLC, UT",
-] as const;
+];
+
+/** A temporary co-branded receipt. See `EVENT`. */
+export interface ReceiptEvent {
+  /** Replaces `FOOTER_LINES` while the event is on. */
+  footerLines: readonly string[];
+  /**
+   * Title for a no-Strava receipt left untitled, in place of the time-of-day
+   * name ("Evening Run"). Strava receipts keep the activity's own name.
+   */
+  defaultTitle?: string;
+  /**
+   * Replaces `MASTHEAD` while the event is on. Null keeps the shop's own. Make
+   * the file exactly as the `MASTHEAD` note above describes.
+   */
+  masthead: Masthead | null;
+}
+
+/**
+ * The event receipt, if one is on.
+ *
+ * `MASTHEAD` and `FOOTER_LINES` above are the shop's own and are never edited
+ * for an event — an event only overrides them here, which is what makes going
+ * back a one-line change: set this to `null` and redeploy.
+ */
+export const EVENT: ReceiptEvent | null = {
+  footerLines: ["ACTIVE CULTURES & DIVER", "925 E 900 S", "SLC, UT"],
+  defaultTitle: "Beer Run",
+  masthead: {
+    file: "public/receipt/masthead-diver.png",
+    width: 313,
+    height: 228,
+  },
+};
+
+/** The footer that prints: the event's while one is on, else the shop's. */
+export const CURRENT_FOOTER_LINES: readonly string[] =
+  EVENT?.footerLines ?? FOOTER_LINES;
+
+/** The event's title for untitled no-Strava receipts, if it sets one. */
+export const EVENT_DEFAULT_TITLE: string | undefined = EVENT?.defaultTitle;
+
+/** The masthead that prints: the event's while one is on, else the shop's. */
+export const CURRENT_MASTHEAD: Masthead = EVENT?.masthead ?? MASTHEAD;
 
 /**
  * Attribution.

@@ -29,6 +29,15 @@ export const DEFAULT_MILES = "3.10";
 export const DEFAULT_DURATION = "30:00";
 
 /**
+ * When the run started, on the receipt's date line.
+ *
+ * The form doesn't ask. The date is today's, from the phone; the time is the
+ * club's usual start, since someone printing in the shop almost certainly ran
+ * with the club. 24-hour clock, phone's local zone.
+ */
+export const DEFAULT_START = { hour: 19, minute: 45 } as const;
+
+/**
  * Names by time of day, matching how Strava titles an untitled activity — so a
  * hand-filled receipt and a Strava one read the same.
  *
@@ -52,7 +61,7 @@ export const TITLES_BY_HOUR: readonly { until: number; title: string }[] = [
  * gives you two receipts that don't look like they came from the same shop.
  */
 export const LABELS = {
-  hero: "NO. MILES",
+  hero: "STATS",
   /** The `1 RUN` line. The noun is separate so it can become WALK or RIDE. */
   noun: "RUN",
   total: "TOTAL MILES",
