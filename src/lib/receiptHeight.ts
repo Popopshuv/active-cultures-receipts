@@ -76,6 +76,7 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
   h += wrappedLines(payload.title, TYPE.brand, TRACKING.brand) * LINE_H.brand;
   h += wrappedLines(payload.subtitle, TYPE.body, TRACKING.body) * LINE_H.body;
   h += wrappedLines(payload.dateLine, TYPE.label, TRACKING.label) * LINE_H.label;
+  h += wrappedLines(payload.athlete, TYPE.label, TRACKING.label) * LINE_H.label;
 
   // Itemised block.
   h += RULE_BLOCK;

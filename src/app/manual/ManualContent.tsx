@@ -8,7 +8,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PhotoStrip } from "@/components/receipt/PhotoStrip";
 import { ReceiptPreview } from "@/components/receipt/ReceiptPreview";
 import { EMPTY_RUN, buildManualReceipt, type ManualRun } from "@/lib/manualReceipt";
-import { DEFAULT_DURATION, DEFAULT_MILES } from "@/lib/manualDefaults";
 import { PRINTED_RESET_MS, PRINT_STYLE, LABEL_STYLE } from "@/lib/receiptScreen";
 import { usePhotoPicker } from "@/lib/usePhotoPicker";
 import { useReceiptPreview } from "@/lib/useReceiptPreview";
@@ -44,19 +43,11 @@ interface FieldProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
   type?: string;
   inputMode?: "text" | "decimal" | "numeric";
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  inputMode,
-}: FieldProps) {
+function Field({ label, value, onChange, type = "text", inputMode }: FieldProps) {
   return (
     <label style={{ display: "block" }}>
       <span style={{ ...LABEL_STYLE, display: "block", marginBottom: "0.4rem" }}>
@@ -66,7 +57,6 @@ function Field({
         type={type}
         inputMode={inputMode}
         value={value}
-        placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         style={FIELD_STYLE}
       />
@@ -246,22 +236,15 @@ export function ManualContent() {
                 label="Distance (miles)"
                 value={run.miles}
                 onChange={set("miles")}
-                placeholder={DEFAULT_MILES}
                 inputMode="decimal"
               />
               <Field
                 label="Time"
                 value={run.duration}
                 onChange={set("duration")}
-                placeholder={DEFAULT_DURATION}
                 inputMode="text"
               />
-              <Field
-                label="Name"
-                value={run.title}
-                onChange={set("title")}
-                placeholder={basePayload.title}
-              />
+              <Field label="Name" value={run.title} onChange={set("title")} />
               <Field
                 label="When"
                 value={run.startedAt}

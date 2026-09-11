@@ -34,7 +34,7 @@ export function ReceiptPreview({
           marginBottom: "0.75rem",
         }}
       >
-        {rendering ? "Updating" : "Exactly what prints"}
+        {rendering ? "Updating" : "Preview — click and hold to save a digital version"}
       </p>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}

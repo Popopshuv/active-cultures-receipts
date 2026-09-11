@@ -14,7 +14,6 @@
 import {
   DEFAULT_DURATION,
   DEFAULT_MILES,
-  DEFAULT_SUBTITLE,
   LABELS,
   titleFor,
 } from "./manualDefaults";
@@ -160,7 +159,8 @@ export function buildManualReceipt(
 
   return {
     title: run.title.trim() || titleFor(started),
-    subtitle: DEFAULT_SUBTITLE,
+    // No place line. Strava's location fields come back empty in practice, so
+    // a Strava receipt never prints one — and this one shouldn't either.
     dateLine: dateLineFor(started),
     hero: {
       label: LABELS.hero,

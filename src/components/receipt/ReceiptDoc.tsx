@@ -221,6 +221,15 @@ export function ReceiptDoc({
             {payload.dateLine.toUpperCase()}
           </Line>
         ) : null}
+        {payload.athlete ? (
+          <Line
+            size={TYPE.label}
+            lineHeight={LINE_H.label}
+            tracking={TRACKING.label}
+          >
+            {payload.athlete.toUpperCase()}
+          </Line>
+        ) : null}
       </div>
 
       <Rule />
@@ -302,9 +311,9 @@ export function ReceiptDoc({
         </Block>
       ) : null}
 
-      {/* Route signature — the run itself, drawn as one line, then signed
-          for the way a card receipt is: a line, and the name printed under
-          it. Last before the shop details, where a signature goes.
+      {/* Route signature — the run itself, drawn as one line over a
+          signature line, the way a card receipt is signed. Last before the
+          shop details, where a signature goes.
 
           Every receipt gets one. With no GPS track (the no-Strava form, a
           treadmill run) the space is left blank at full size, for the runner
@@ -326,13 +335,13 @@ export function ReceiptDoc({
             marginBottom: ROUTE.captionGap,
           }}
         />
-        <Row
-          label={ROUTE.label}
-          value={payload.athlete?.toUpperCase() ?? ""}
+        <Line
           size={TYPE.label}
           lineHeight={LINE_H.label}
           tracking={TRACKING.label}
-        />
+        >
+          {ROUTE.label}
+        </Line>
       </Block>
 
       <Rule />

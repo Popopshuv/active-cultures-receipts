@@ -118,12 +118,12 @@ export interface BuildReceiptOptions {
   now?: Date;
   /** Falls back to the activity's own location. */
   subtitle?: string;
-  /** Name printed under the signature line. */
+  /** Name printed under the date line. */
   athlete?: string;
 }
 
 /**
- * The name for under the signature line: the Strava handle when there is one,
+ * The runner's name for the receipt: the Strava handle when there is one,
  * otherwise the first-name-plus-initial the session already keeps.
  */
 export function athleteFor(session: {

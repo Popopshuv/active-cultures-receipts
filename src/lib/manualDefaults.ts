@@ -29,14 +29,6 @@ export const DEFAULT_MILES = "3.10";
 export const DEFAULT_DURATION = "30:00";
 
 /**
- * Where the run happened. Prints under the title.
- *
- * Defaults to the shop rather than to nothing, on the grounds that a run
- * starting from a QR code in the shop probably started at the shop.
- */
-export const DEFAULT_SUBTITLE = "Salt Lake City, Utah";
-
-/**
  * Names by time of day, matching how Strava titles an untitled activity — so a
  * hand-filled receipt and a Strava one read the same.
  *
