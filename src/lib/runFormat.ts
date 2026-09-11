@@ -118,12 +118,26 @@ export interface BuildReceiptOptions {
   now?: Date;
   /** Falls back to the activity's own location. */
   subtitle?: string;
+  /** Name printed under the signature line. */
+  athlete?: string;
+}
+
+/**
+ * The name for under the signature line: the Strava handle when there is one,
+ * otherwise the first-name-plus-initial the session already keeps.
+ */
+export function athleteFor(session: {
+  name: string;
+  username?: string | null;
+}): string | undefined {
+  if (session.username) return `@${session.username}`;
+  return session.name || undefined;
 }
 
 /** Turn an activity into the payload the renderer takes. */
 export function buildReceipt(
   activity: StravaActivity,
-  { photos = [], now = new Date(), subtitle }: BuildReceiptOptions = {},
+  { photos = [], now = new Date(), subtitle, athlete }: BuildReceiptOptions = {},
 ): ReceiptPayload {
   const noun = activityNoun(activity);
   const distance = miles(activity.distance);
@@ -166,6 +180,7 @@ export function buildReceipt(
       value: distance,
     },
     polyline: activity.map?.summary_polyline ?? activity.map?.polyline ?? null,
+    athlete,
     photos,
     footerLines: FOOTER_LINES,
     deviceName: activity.device_name ?? null,

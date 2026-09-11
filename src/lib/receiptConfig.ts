@@ -113,6 +113,8 @@ export const ROUTE = {
   height: 200,
   stroke: 2,
   padding: 6,
+  /** Between the signature line and the caption printed under it. */
+  captionGap: 4,
 } as const;
 
 /** Photos are dithered to exactly this width and placed 1:1. Never resampled. */

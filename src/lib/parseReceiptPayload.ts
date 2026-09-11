@@ -18,6 +18,8 @@ import type { ReceiptPayload, ReceiptPhoto, ReceiptStat } from "./receiptPayload
 /** Belt and braces against a payload that tries to exhaust memory. */
 const LIMITS = {
   text: 120,
+  /** One line under the signature — longer would wrap into the footer. */
+  athlete: 32,
   stats: 12,
   footerLines: 6,
   /** Roughly 1MB of base64 per photo — far above a real 1-bit 368px PNG. */
@@ -126,6 +128,7 @@ export function parseReceiptPayload(input: unknown): ReceiptPayload {
     stats: statsInput.slice(0, LIMITS.stats).map(parseStat),
     total,
     polyline: optionalStr(raw.polyline, "polyline", LIMITS.polyline) ?? null,
+    athlete: optionalStr(raw.athlete, "athlete", LIMITS.athlete),
     photos: photosInput.slice(0, MAX_RUNNER_PHOTOS + 3).map(parsePhoto),
     footerLines: footerInput
       .slice(0, LIMITS.footerLines)

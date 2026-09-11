@@ -4,7 +4,7 @@
  * The counterpart to `buildReceipt` in `runFormat.ts`, for runners who don't
  * use Strava. Same output type, same renderer, same printer — the only
  * difference is where the numbers come from, and that there's no GPS track to
- * draw, so the route signature section is omitted rather than left empty.
+ * draw, so the route signature prints blank for the runner to draw in by hand.
  *
  * Pure and isomorphic, for the same reason `runFormat` is: the payload is built
  * once on the phone and posted twice, to preview and to print. Anything that
@@ -169,8 +169,8 @@ export function buildManualReceipt(
     },
     stats,
     total: { label: LABELS.total, value: distance },
-    // No GPS, so no route signature. Null drops the section entirely rather
-    // than printing an empty box where the track would be.
+    // No GPS track. The route signature still prints, left blank above its
+    // line so the runner can draw the route in with a pen.
     polyline: null,
     photos,
     footerLines: FOOTER_LINES,

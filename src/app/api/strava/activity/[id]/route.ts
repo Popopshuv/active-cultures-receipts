@@ -10,7 +10,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { withSession } from "@/lib/apiSession";
 import { bestPhotoUrl, getActivity, getActivityPhotos } from "@/lib/strava";
-import { buildReceipt } from "@/lib/runFormat";
+import { athleteFor, buildReceipt } from "@/lib/runFormat";
 
 export const runtime = "nodejs";
 
@@ -34,7 +34,7 @@ export async function GET(
       activityId: activity.id,
       // Photos are attached client-side after dithering, so this payload
       // carries none yet.
-      payload: buildReceipt(activity),
+      payload: buildReceipt(activity, { athlete: athleteFor(session) }),
       photoUrls,
     });
   });

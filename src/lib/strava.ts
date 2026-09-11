@@ -95,7 +95,16 @@ interface TokenResponse {
   access_token: string;
   refresh_token: string;
   expires_at: number;
-  athlete?: { id: number; firstname?: string; lastname?: string };
+  athlete?: {
+    id: number;
+    /**
+     * The athlete's handle, as in strava.com/athletes/<username>. Optional on
+     * Strava's side — an athlete who never set a custom profile URL has null.
+     */
+    username?: string | null;
+    firstname?: string;
+    lastname?: string;
+  };
 }
 
 async function tokenRequest(body: Record<string, string>): Promise<TokenResponse> {
@@ -131,6 +140,7 @@ export async function exchangeCode(code: string): Promise<StravaSession> {
     // First name plus last initial. Enough to personalise a receipt without
     // printing someone's full name on a slip of paper in a shop.
     name: [first, last ? `${last.charAt(0)}.` : ""].filter(Boolean).join(" "),
+    username: token.athlete?.username?.trim() || null,
     accessToken: token.access_token,
     refreshToken: token.refresh_token,
     expiresAt: token.expires_at,

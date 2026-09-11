@@ -92,6 +92,7 @@ export const SAMPLE_RUN: ReceiptPayload = {
     value: "4.02",
   },
   polyline: libertyParkLoop(),
+  athlete: "@marianne_t",
   photos: [],
   footerLines: FOOTER_LINES,
   deviceName: "Garmin Forerunner 265",

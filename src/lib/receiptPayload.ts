@@ -51,6 +51,11 @@ export interface ReceiptPayload {
   total?: { label: string; value: string; note?: string };
   /** Encoded polyline for the route signature. Omit to drop the section. */
   polyline?: string | null;
+  /**
+   * Who ran it, printed under the signature line the way a receipt prints the
+   * cardholder's name — e.g. "@marianne_t". Omit and the caption prints alone.
+   */
+  athlete?: string;
   /** Dithered photos, in print order. */
   photos: ReceiptPhoto[];
   /** Extra closing lines above the stamp. */

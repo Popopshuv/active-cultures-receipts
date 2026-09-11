@@ -19,6 +19,11 @@ export interface StravaSession {
   athleteId: number;
   /** First name plus last initial — enough to put on a receipt. */
   name: string;
+  /**
+   * Strava handle, without the `@`. Null when the athlete never set one — and
+   * absent on cookies minted before this field existed, so read it with `??`.
+   */
+  username?: string | null;
   accessToken: string;
   refreshToken: string;
   /** Unix seconds. Strava access tokens last six hours. */

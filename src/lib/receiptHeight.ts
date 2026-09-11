@@ -91,19 +91,19 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
     if (payload.total.note) h += LINE_H.micro;
   }
 
-  // Route signature.
-  if (payload.polyline) {
-    h += RULE_BLOCK;
-    h += LINE_H.label;
-    h += ROUTE.height;
-  }
-
   // Photo stack.
   if (payload.photos.length > 0) {
     h += RULE_BLOCK;
     h += payload.photos.reduce((sum, p) => sum + p.height, 0);
     h += GAP.photo * Math.max(0, payload.photos.length - 1);
   }
+
+  // Route signature: drawing (or the same space left blank), line, caption.
+  // Unconditional — every receipt has one.
+  h += RULE_BLOCK;
+  h += ROUTE.height;
+  h += 1 + ROUTE.captionGap;
+  h += LINE_H.label;
 
   // Shop details, stamp, studio credit.
   h += RULE_BLOCK;
