@@ -21,8 +21,9 @@ const LIMITS = {
   athlete: ATHLETE_MAX,
   stats: 12,
   /**
-   * Blank spacer lines count too. Past this, lines are silently dropped, so
-   * keep it well above the longest footer in receiptConfig.
+   * Per list — notice lines and footer lines each. Blank spacer lines count
+   * too, and past this lines are silently dropped, so keep it well above the
+   * longest list in receiptConfig.
    */
   footerLines: 24,
   /** Roughly 1MB of base64 per photo — far above a real 1-bit 368px PNG. */
@@ -101,6 +102,7 @@ export function parseReceiptPayload(input: unknown): ReceiptPayload {
 
   const statsInput = Array.isArray(raw.stats) ? raw.stats : [];
   const photosInput = Array.isArray(raw.photos) ? raw.photos : [];
+  const noticeInput = Array.isArray(raw.noticeLines) ? raw.noticeLines : [];
   const footerInput = Array.isArray(raw.footerLines) ? raw.footerLines : [];
 
   let hero: ReceiptPayload["hero"];
@@ -133,6 +135,9 @@ export function parseReceiptPayload(input: unknown): ReceiptPayload {
     polyline: optionalStr(raw.polyline, "polyline", LIMITS.polyline) ?? null,
     athlete: optionalStr(raw.athlete, "athlete", LIMITS.athlete),
     photos: photosInput.slice(0, MAX_RUNNER_PHOTOS + 3).map(parsePhoto),
+    noticeLines: noticeInput
+      .slice(0, LIMITS.footerLines)
+      .map((l, i) => str(l, `noticeLines[${i}]`)),
     footerLines: footerInput
       .slice(0, LIMITS.footerLines)
       .map((l, i) => str(l, `footerLines[${i}]`)),

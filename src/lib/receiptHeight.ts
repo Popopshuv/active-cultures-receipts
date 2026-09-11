@@ -106,13 +106,14 @@ export function estimateReceiptHeight(payload: ReceiptPayload): number {
     h += GAP.photo * Math.max(0, payload.photos.length - 1);
   }
 
-  // Shop details, stamp, studio credit.
+  // Fine print, transaction record, shop details, studio credit.
   h += RULE_BLOCK;
-  const footerCount = payload.footerLines?.length ?? 0;
   h += GAP.footer;
-  h += footerCount * LINE_H.footer;
+  h += (payload.noticeLines?.length ?? 0) * LINE_H.footer;
   h += TRANSACTION.lines * LINE_H.stamp;
-  // The credit prints unconditionally, below the stamp.
+  h += GAP.shop;
+  h += (payload.footerLines?.length ?? 0) * LINE_H.footer;
+  // The credit prints unconditionally, last.
   h += GAP.credit + LINE_H.credit;
 
   // Slack, then the vertical padding the document itself adds.

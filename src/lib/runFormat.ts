@@ -9,7 +9,7 @@
  * what comes out of the printer.
  */
 
-import { CURRENT_FOOTER_LINES } from "./receiptConfig";
+import { CURRENT_FOOTER_LINES, CURRENT_NOTICE_LINES } from "./receiptConfig";
 import type { ReceiptPayload, ReceiptPhoto, ReceiptStat } from "./receiptPayload";
 import type { StravaActivity } from "./strava";
 
@@ -179,6 +179,7 @@ export function buildReceipt(
     polyline: activity.map?.summary_polyline ?? activity.map?.polyline ?? null,
     athlete,
     photos,
+    noticeLines: CURRENT_NOTICE_LINES,
     footerLines: CURRENT_FOOTER_LINES,
     deviceName: activity.device_name ?? null,
     ticket: ticketFor(activity.id),

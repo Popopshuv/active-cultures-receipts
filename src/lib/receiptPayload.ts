@@ -55,7 +55,12 @@ export interface ReceiptPayload {
   athlete?: string;
   /** Dithered photos, in print order. */
   photos: ReceiptPhoto[];
-  /** Extra closing lines above the stamp. An empty string prints a blank line. */
+  /**
+   * Fine print above the transaction record, e.g. "** CUSTOMER COPY **". An
+   * empty string prints a blank line.
+   */
+  noticeLines?: readonly string[];
+  /** Shop details below the transaction record. Empty string = blank line. */
   footerLines?: readonly string[];
   /** Reported recording device — decides whether Garmin attribution prints. */
   deviceName?: string | null;

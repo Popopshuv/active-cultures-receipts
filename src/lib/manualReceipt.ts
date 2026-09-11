@@ -18,7 +18,11 @@ import {
   LABELS,
   titleFor,
 } from "./manualDefaults";
-import { CURRENT_FOOTER_LINES, EVENT_DEFAULT_TITLE } from "./receiptConfig";
+import {
+  CURRENT_FOOTER_LINES,
+  CURRENT_NOTICE_LINES,
+  EVENT_DEFAULT_TITLE,
+} from "./receiptConfig";
 import { duration as formatDuration, pace, stampFor } from "./runFormat";
 import type { ReceiptPayload, ReceiptPhoto, ReceiptStat } from "./receiptPayload";
 
@@ -164,6 +168,7 @@ export function buildManualReceipt(
     // No GPS track. The route signature prints a stand-in squiggle instead.
     polyline: null,
     photos,
+    noticeLines: CURRENT_NOTICE_LINES,
     footerLines: CURRENT_FOOTER_LINES,
     deviceName: null,
     ticket,

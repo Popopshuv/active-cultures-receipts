@@ -104,7 +104,9 @@ export const GAP = {
    * rule's own. Brings it to roughly two blank footer lines.
    */
   footer: 20,
-  /** Between the ticket/stamp line and the studio credit under it. */
+  /** Between the transaction record and the shop details under it. */
+  shop: 32,
+  /** Between the shop details and the studio credit under them. */
   credit: 32,
 };
 
@@ -201,18 +203,26 @@ export const MASTHEAD: Masthead = {
 };
 
 /**
- * Shop details, printed at the foot of every receipt. The ticket/stamp line
- * follows the last line directly, so any space before it is a blank line here.
+ * Shop details, printed at the foot of every receipt, below the transaction
+ * record. An empty string prints a blank line.
  */
 export const FOOTER_LINES: readonly string[] = [
   "ACTIVE CULTURES",
   "925 E 900 S",
   "SLC, UT",
-  "",
 ];
+
+/**
+ * Fine print above the transaction record. The shop's receipt has none. An
+ * empty string prints a blank line — end with one to separate it from the
+ * record. Lines don't wrap, so keep each under ~36 characters.
+ */
+export const NOTICE_LINES: readonly string[] = [];
 
 /** A temporary co-branded receipt. See `EVENT`. */
 export interface ReceiptEvent {
+  /** Replaces `NOTICE_LINES` while the event is on. */
+  noticeLines: readonly string[];
   /** Replaces `FOOTER_LINES` while the event is on. */
   footerLines: readonly string[];
   /**
@@ -230,26 +240,19 @@ export interface ReceiptEvent {
 /**
  * The event receipt, if one is on.
  *
- * `MASTHEAD` and `FOOTER_LINES` above are the shop's own and are never edited
- * for an event — an event only overrides them here, which is what makes going
- * back a one-line change: set this to `null` and redeploy.
+ * `MASTHEAD`, `NOTICE_LINES` and `FOOTER_LINES` above are the shop's own and
+ * are never edited for an event — an event only overrides them here, which is
+ * what makes going back a one-line change: set this to `null` and redeploy.
  */
 export const EVENT: ReceiptEvent | null = {
-  footerLines: [
-    "ACTIVE CULTURES & DIVER",
-    "9TH ALLEY",
-    "900E 900S ISH",
-    "SLC, UT",
-    // Blank lines print as empty space — see footerLines on ReceiptPayload.
-    "",
-    "",
-    // Store-receipt fine print, played straight. Footer lines don't wrap, so
-    // keep each under ~36 characters.
-    "CUSTOMER COPY",
+  // Store-receipt fine print, played straight.
+  noticeLines: [
+    "** CUSTOMER COPY **",
     "PLEASE RETAIN FOR YOUR RECORDS",
     "THANK YOU FOR SUPPORTING.",
     "",
   ],
+  footerLines: ["ACTIVE CULTURES & DIVER", "9TH ALLEY", "900E 900S ISH", "SLC, UT"],
   defaultTitle: "Beer Run",
   masthead: {
     file: "public/receipt/masthead-diver.png",
@@ -257,6 +260,10 @@ export const EVENT: ReceiptEvent | null = {
     height: 228,
   },
 };
+
+/** The fine print that prints: the event's while one is on, else the shop's. */
+export const CURRENT_NOTICE_LINES: readonly string[] =
+  EVENT?.noticeLines ?? NOTICE_LINES;
 
 /** The footer that prints: the event's while one is on, else the shop's. */
 export const CURRENT_FOOTER_LINES: readonly string[] =

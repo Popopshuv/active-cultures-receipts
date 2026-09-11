@@ -7,7 +7,7 @@
  * the *only* way to put a realistic receipt in front of the printer.
  */
 
-import { CURRENT_FOOTER_LINES } from "../receiptConfig";
+import { CURRENT_FOOTER_LINES, CURRENT_NOTICE_LINES } from "../receiptConfig";
 import type { ReceiptPayload } from "../receiptPayload";
 
 /**
@@ -94,6 +94,7 @@ export const SAMPLE_RUN: ReceiptPayload = {
   polyline: libertyParkLoop(),
   athlete: "@marianne_t",
   photos: [],
+  noticeLines: CURRENT_NOTICE_LINES,
   footerLines: CURRENT_FOOTER_LINES,
   deviceName: "Garmin Forerunner 265",
   ticket: "#0001",

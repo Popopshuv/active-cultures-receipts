@@ -150,6 +150,47 @@ function Line({
 }
 
 /**
+ * A stack of footer-size lines — the fine print and the shop details. Renders
+ * nothing for an empty list.
+ */
+function FooterLines({
+  lines,
+  marginTop,
+}: {
+  lines?: readonly string[];
+  marginTop: number;
+}) {
+  if (!lines?.length) return null;
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: CONTENT_WIDTH,
+        marginTop,
+      }}
+    >
+      {lines.map((line, i) =>
+        // A blank line is spacing. Satori collapses an empty text box to
+        // nothing, so it gets an explicit height instead.
+        line ? (
+          <Line
+            key={i}
+            size={TYPE.footer}
+            lineHeight={LINE_H.footer}
+            tracking={TRACKING.label}
+          >
+            {line}
+          </Line>
+        ) : (
+          <div key={i} style={{ display: "flex", height: LINE_H.footer }} />
+        ),
+      )}
+    </div>
+  );
+}
+
+/**
  * Trace and invoice numbers for the transaction record.
  *
  * Decorative, but not random: they're hashed from the payload, so the preview
@@ -382,33 +423,8 @@ export function ReceiptDoc({
 
       <Rule />
 
-      {/* Shop details. On the Garmin attribution that used to print here, see
-          the note in `receiptConfig.ATTRIBUTION`. */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: CONTENT_WIDTH,
-          marginTop: GAP.footer,
-        }}
-      >
-        {(payload.footerLines ?? []).map((line, i) =>
-          // A blank line is spacing. Satori collapses an empty text box to
-          // nothing, so it gets an explicit height instead.
-          line ? (
-            <Line
-              key={i}
-              size={TYPE.footer}
-              lineHeight={LINE_H.footer}
-              tracking={TRACKING.label}
-            >
-              {line}
-            </Line>
-          ) : (
-            <div key={i} style={{ display: "flex", height: LINE_H.footer }} />
-          ),
-        )}
-      </div>
+      {/* Fine print — "** CUSTOMER COPY **" and the like. */}
+      <FooterLines lines={payload.noticeLines} marginTop={GAP.footer} />
 
       {/* Transaction record — the ticket and date, dressed as a card slip's
           tran/trace/invoice block. */}
@@ -417,6 +433,8 @@ export function ReceiptDoc({
           display: "flex",
           flexDirection: "column",
           width: CONTENT_WIDTH,
+          // Takes the gap under the rule itself when there's no fine print.
+          marginTop: payload.noticeLines?.length ? 0 : GAP.footer,
           fontSize: TYPE.stamp,
           lineHeight: `${LINE_H.stamp}px`,
           letterSpacing: TRACKING.body,
@@ -441,8 +459,12 @@ export function ReceiptDoc({
         </div>
       </div>
 
-      {/* Studio credit. Below the stamp and a size down from it, so it reads as
-          a mark on the ticket rather than another line of the shop's address. */}
+      {/* Shop details. On the Garmin attribution that used to print here, see
+          the note in `receiptConfig.ATTRIBUTION`. */}
+      <FooterLines lines={payload.footerLines} marginTop={GAP.shop} />
+
+      {/* Studio credit. Last, and a size down, so it reads as a mark on the
+          receipt rather than another line of the shop's address. */}
       <div
         style={{ display: "flex", width: CONTENT_WIDTH, marginTop: GAP.credit }}
       >
