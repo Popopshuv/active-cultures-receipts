@@ -292,6 +292,29 @@ export function ReceiptDoc({
         </Block>
       ) : null}
 
+      {/* Route signature — the run itself, drawn as one line.
+
+          Every receipt gets one. With no GPS track (the no-Strava form, a
+          treadmill run) the space is left blank at full size, for the runner
+          to draw their route in by hand. */}
+      <Block align="center">
+        <Rule />
+        <Line
+          size={TYPE.label}
+          lineHeight={LINE_H.label}
+          tracking={TRACKING.label}
+          align="center"
+        >
+          {ROUTE.label}
+        </Line>
+        {routeSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={routeSrc} width={ROUTE.width} height={ROUTE.height} alt="" />
+        ) : (
+          <div style={{ display: "flex", height: ROUTE.height }} />
+        )}
+      </Block>
+
       {/* Photos. Placed at exactly the size they were dithered at — any
           resampling here would smear the dither into grey mush. */}
       {payload.photos.length > 0 ? (
@@ -310,39 +333,6 @@ export function ReceiptDoc({
           ))}
         </Block>
       ) : null}
-
-      {/* Route signature — the run itself, drawn as one line over a
-          signature line, the way a card receipt is signed. Last before the
-          shop details, where a signature goes.
-
-          Every receipt gets one. With no GPS track (the no-Strava form, a
-          treadmill run) the space is left blank at full size, for the runner
-          to draw their route in by hand. */}
-      <Block>
-        <Rule />
-        {routeSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={routeSrc} width={ROUTE.width} height={ROUTE.height} alt="" />
-        ) : (
-          <div style={{ display: "flex", height: ROUTE.height }} />
-        )}
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            height: 1,
-            backgroundColor: INK,
-            marginBottom: ROUTE.captionGap,
-          }}
-        />
-        <Line
-          size={TYPE.label}
-          lineHeight={LINE_H.label}
-          tracking={TRACKING.label}
-        >
-          {ROUTE.label}
-        </Line>
-      </Block>
 
       <Rule />
 
